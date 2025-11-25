@@ -12,7 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { COLORS, SPACING } from "../constants/theme";
+import { useTheme } from "../constants/theme";
 import { checkSession } from "../utils/checkSession";
 
 interface HourRecord {
@@ -25,6 +25,8 @@ interface HourRecord {
 }
 
 export default function OldHoursScreen() {
+  const theme = useTheme();
+
   const [hours, setHours] = useState<HourRecord[]>([]);
   const [totalHours, setTotalHours] = useState("0.00");
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,6 @@ export default function OldHoursScreen() {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
 
-  // ✅ Fetch old hours safely
   const fetchHours = async () => {
     if (!dateS || !dateE) {
       Alert.alert("Välj datum", "Ange start och slutdatum");
@@ -46,12 +47,10 @@ export default function OldHoursScreen() {
     setLoading(true);
 
     try {
-      // ✅ 1. Validate session
       const session = await checkSession();
-      if (!session || !session.user_id) {
+      if (!session?.user_id) {
         Alert.alert("Session saknas", "Logga in igen");
         setLoading(false);
-        setRefreshing(false);
         return;
       }
 
@@ -59,18 +58,16 @@ export default function OldHoursScreen() {
       if (!sessionId) {
         Alert.alert("Session saknas", "Logga in igen");
         setLoading(false);
-        setRefreshing(false);
         return;
       }
 
       const rid = String(session.user_id);
 
-      // ✅ 2. Send request
       const body =
-        `session_id=${encodeURIComponent(sessionId)}` +
-        `&rid=${encodeURIComponent(rid)}` +
-        `&dateS=${encodeURIComponent(dateS)}` +
-        `&dateE=${encodeURIComponent(dateE)}` +
+        `session_id=${sessionId}` +
+        `&rid=${rid}` +
+        `&dateS=${dateS}` +
+        `&dateE=${dateE}` +
         `&is_paid=1`;
 
       const res = await fetch(
@@ -83,36 +80,14 @@ export default function OldHoursScreen() {
       );
 
       const text = await res.text();
-      console.log("📦 Paid hours response:", text);
+      let data: any[] = JSON.parse(text);
 
-      let data: any[] = [];
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        console.log("❗ JSON parse error:", text);
-        Alert.alert("Fel", "Kunde inte läsa svar från servern");
-        return;
-      }
-
-      if (!Array.isArray(data)) {
-        console.log("❗ Unexpected format:", data);
-        Alert.alert("Fel", "Felaktigt svar från servern");
-        return;
-      }
-
-      // ✅ Extract totals & safe rows
       const total = data.find((r: any) => r.totalHours)?.totalHours ?? "0.00";
       setTotalHours(total);
 
-      const validRows = data.filter((r: any) => r.success);
-      setHours(validRows);
-
-      if (validRows.length === 0) {
-        console.log("ℹ️ No historical hours (only totalHours present)");
-        // No alert or navigation, just show empty list
-      }
+      const valid = data.filter((x) => x.success === true);
+      setHours(valid);
     } catch (err) {
-      console.log("❌ Fetch old hours error:", err);
       Alert.alert("Fel", "Kunde inte hämta historiska timmar.");
     }
 
@@ -121,30 +96,57 @@ export default function OldHoursScreen() {
   };
 
   const renderItem = ({ item }: { item: HourRecord }) => (
-    <View style={styles.row}>
-      <Text style={[styles.cell, styles.colProject]}>{item.OID}</Text>
-      <Text style={[styles.cell, styles.colDate]}>{item.Datum}</Text>
-      <Text style={[styles.cell, styles.colAddress]}>{item.Adress}</Text>
-      <Text style={[styles.cell, styles.colService]}>{item.Tjänst}</Text>
-      <Text style={[styles.cell, styles.colHours, styles.bold]}>
+    <View
+      style={[
+        styles.row,
+        { borderColor: theme.COLORS.border },
+      ]}
+    >
+      <Text style={[styles.cell, { color: theme.COLORS.text }]}>{item.OID}</Text>
+      <Text style={[styles.cell, { color: theme.COLORS.text }]}>{item.Datum}</Text>
+      <Text style={[styles.cell, { color: theme.COLORS.text }]}>{item.Adress}</Text>
+      <Text style={[styles.cell, { color: theme.COLORS.text }]}>{item.Tjänst}</Text>
+      <Text
+        style={[
+          styles.cell,
+          { color: theme.COLORS.text },
+          styles.bold,
+        ]}
+      >
         {item.Timmar}
       </Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <MaterialIcons name="history" size={28} color="#fff" />
-        <Text style={styles.headerTitle}>Historiska timmar</Text>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.COLORS.background },
+      ]}
+    >
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: theme.COLORS.primary },
+        ]}
+      >
+        <MaterialIcons name="history" size={26} color={theme.COLORS.white} />
+        <Text style={[styles.headerTitle, { color: theme.COLORS.white }]}>
+          Historiska timmar
+        </Text>
       </View>
 
-      {/* ✅ Start Date Picker */}
       <TouchableOpacity
-        style={styles.dateButton}
+        style={[
+          styles.dateButton,
+          { borderColor: theme.COLORS.primary },
+        ]}
         onPress={() => setShowStartPicker(true)}
       >
-        <Text style={styles.dateText}>Startdatum: {dateS || "Välj..."}</Text>
+        <Text style={{ color: theme.COLORS.text, fontWeight: "600" }}>
+          Startdatum: {dateS || "Välj..."}
+        </Text>
       </TouchableOpacity>
 
       {showStartPicker && (
@@ -158,12 +160,16 @@ export default function OldHoursScreen() {
         />
       )}
 
-      {/* ✅ End Date Picker */}
       <TouchableOpacity
-        style={styles.dateButton}
+        style={[
+          styles.dateButton,
+          { borderColor: theme.COLORS.primary },
+        ]}
         onPress={() => setShowEndPicker(true)}
       >
-        <Text style={styles.dateText}>Slutdatum: {dateE || "Välj..."}</Text>
+        <Text style={{ color: theme.COLORS.text, fontWeight: "600" }}>
+          Slutdatum: {dateE || "Välj..."}
+        </Text>
       </TouchableOpacity>
 
       {showEndPicker && (
@@ -177,17 +183,23 @@ export default function OldHoursScreen() {
         />
       )}
 
-      {/* ✅ Fetch Button */}
-      <TouchableOpacity style={styles.fetchButton} onPress={fetchHours}>
-        <Text style={styles.fetchButtonText}>Visa timmar</Text>
+      <TouchableOpacity
+        style={[
+          styles.fetchButton,
+          { backgroundColor: theme.COLORS.primary },
+        ]}
+        onPress={fetchHours}
+      >
+        <Text style={{ color: theme.COLORS.white, fontWeight: "700" }}>
+          Visa timmar
+        </Text>
       </TouchableOpacity>
 
-      {/* ✅ Results */}
       {loading ? (
         <ActivityIndicator
           style={{ marginTop: 20 }}
           size="large"
-          color={COLORS.primary}
+          color={theme.COLORS.primary}
         />
       ) : (
         <FlatList
@@ -198,40 +210,47 @@ export default function OldHoursScreen() {
             <RefreshControl refreshing={refreshing} onRefresh={fetchHours} />
           }
           ListEmptyComponent={
-            !loading && (
-              <View style={{ alignItems: "center", marginTop: 40 }}>
-                <Text style={{ color: COLORS.secondary }}>
-                  Inga historiska timmar hittades
-                </Text>
-              </View>
-            )
+            <View style={{ alignItems: "center", marginTop: 40 }}>
+              <Text style={{ color: theme.COLORS.textSecondary }}>
+                Inga historiska timmar
+              </Text>
+            </View>
           }
-          contentContainerStyle={{ paddingBottom: 80 }}
+          contentContainerStyle={{ paddingBottom: 70 }}
         />
       )}
 
-      {/* ✅ Footer Total */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Totalt:</Text>
-        <Text style={styles.footerHours}>{totalHours}</Text>
+      <View
+        style={[
+          styles.footer,
+          {
+            borderColor: theme.COLORS.primary,
+            backgroundColor: theme.COLORS.card,
+          },
+        ]}
+      >
+        <Text style={{ fontWeight: "700", color: theme.COLORS.primary }}>
+          Totalt:
+        </Text>
+        <Text style={{ fontWeight: "900", fontSize: 18, color: theme.COLORS.primary }}>
+          {totalHours}
+        </Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background, padding: SPACING.m },
+  container: { flex: 1, padding: 16 },
 
   header: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.m,
+    padding: 14,
     borderRadius: 12,
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: SPACING.m,
+    marginBottom: 16,
   },
   headerTitle: {
-    color: COLORS.white,
     fontSize: 20,
     fontWeight: "700",
     marginLeft: 8,
@@ -239,50 +258,36 @@ const styles = StyleSheet.create({
 
   dateButton: {
     borderWidth: 1,
-    borderColor: COLORS.primary,
     borderRadius: 8,
     padding: 10,
-    marginBottom: 8,
-  },
-  dateText: { fontWeight: "600", color: COLORS.secondary },
-
-  fetchButton: {
-    backgroundColor: COLORS.primary,
-    padding: 12,
-    alignItems: "center",
-    borderRadius: 8,
     marginBottom: 10,
   },
-  fetchButtonText: { color: "white", fontWeight: "700" },
+
+  fetchButton: {
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    marginBottom: 12,
+  },
 
   row: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderColor: "#ddd",
     paddingVertical: 6,
   },
-  cell: { fontSize: 12, color: COLORS.secondary },
 
-  colProject: { flex: 0.6 },
-  colDate: { flex: 1.2 },
-  colAddress: { flex: 2.2, paddingLeft: 8 },
-  colService: { flex: 1.2 },
-  colHours: { flex: 0.8, textAlign: "right" },
+  cell: { fontSize: 12 },
   bold: { fontWeight: "700" },
 
   footer: {
-    backgroundColor: "#E8F4D8",
-    borderRadius: 8,
+    position: "absolute",
+    left: 16,
+    right: 16,
+    bottom: 16,
     padding: 12,
+    borderWidth: 2,
+    borderRadius: 10,
     flexDirection: "row",
     justifyContent: "space-between",
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-    position: "absolute",
-    bottom: 15,
-    left: 15,
-    right: 15,
   },
-  footerText: { fontSize: 15, fontWeight: "700", color: COLORS.primary },
-  footerHours: { fontSize: 18, fontWeight: "900", color: COLORS.primary },
 });

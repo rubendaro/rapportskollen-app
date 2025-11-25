@@ -8,15 +8,15 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
-  View,
+  TouchableOpacity
 } from "react-native";
 import NfcManager, { Ndef, NfcTech } from "react-native-nfc-manager";
-import { COLORS } from "../constants/theme";
-import { checkSession } from "../utils/checkSession"; // ✅ ADDED
+import { useTheme } from "../constants/theme";
+import { checkSession } from "../utils/checkSession";
 
 export default function NfcCheck() {
   const router = useRouter();
+  const theme = useTheme();
 
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<any>(null);
@@ -29,17 +29,14 @@ export default function NfcCheck() {
   const [checkStatus, setCheckStatus] = useState<number | null>(null);
   const [chid, setChid] = useState<number | null>(null);
 
-  // ✅ session values
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rid, setRid] = useState<string | null>(null);
 
   useEffect(() => {
-
-    
     const init = async () => {
       const session = await checkSession();
 
-      if (!session || !session.user_id) {
+      if (!session?.user_id) {
         Alert.alert("Session saknas", "Logga in igen");
         router.replace("/login");
         return;
@@ -51,7 +48,6 @@ export default function NfcCheck() {
     };
 
     init();
-
     NfcManager.start();
   }, []);
 
@@ -61,290 +57,178 @@ export default function NfcCheck() {
         if (Ndef.isType(record, Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) {
           return Ndef.text.decodePayload(record.payload).trim();
         }
-        if (Ndef.isType(record, Ndef.TNF_WELL_KNOWN, Ndef.RTD_URI)) {
-          return Ndef.uri.decodePayload(record.payload).trim();
-        }
       }
-      const decoder = new TextDecoder();
-      return decoder.decode(record.payload).trim();
+      return new TextDecoder().decode(record.payload).trim();
     } catch {
       return "";
     }
   };
 
   const readNfc = async () => {
-    if (!rid || !sessionId) {
-      Alert.alert("Fel", "Session saknas. Logga in igen.");
-      return;
-    }
-
     try {
       setLoading(true);
-      setFormData(null);
-      setToken(null);
       setSelectedAddress("");
-      setSelectedAddressLabel("");
       setSelectedService("");
-      setCheckStatus(null);
-      setChid(null);
+      setFormData(null);
 
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
 
-      if (!tag?.ndefMessage?.length) {
-        Alert.alert("Ingen NDEF-data hittades på taggen.");
+      let decoded = "";
+      for (const rec of tag?.ndefMessage ?? [])
+        decoded += decodeNdefPayload(rec);
+
+      const clean = decoded.trim().replace(/\s+/g, "");
+
+      if (!clean) {
+        Alert.alert("Ingen token hittades");
         return;
       }
 
-      let decodedText = "";
-      for (const record of tag.ndefMessage)
-        decodedText += decodeNdefPayload(record);
-
-      const cleanToken = decodedText.trim().replace(/\s+/g, "");
-
-      if (!cleanToken) {
-        Alert.alert("Taggen verkar tom", "Ingen token hittades.");
-        return;
-      }
-
-      setToken(cleanToken);
-
-      // ✅ Session included
       const body =
-        `rid=${encodeURIComponent(rid)}` +
-        `&session_id=${encodeURIComponent(sessionId ?? "")}` +
-        `&token=${encodeURIComponent(cleanToken)}`;
+        `session_id=${encodeURIComponent(sessionId ?? "")}` +
+        `&rid=${encodeURIComponent(rid ?? "")}` +
+        `&token=${encodeURIComponent(clean)}`;
 
       const res = await fetch(
         "https://rapportskollen.com/mobile/check_add_tag.php",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body,
-        }
+        { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body }
       );
 
-      const text = await res.text();
-      let data = JSON.parse(text);
+      const json = JSON.parse(await res.text());
 
-      if (Array.isArray(data.addresses) && data.addresses.length > 0) {
-        setFormData(data);
-        setCheckStatus(Number(data.Checkstatus ?? 0));
-        setChid(Number(data.CHID ?? 0));
-      } else {
-        Alert.alert("Ingen adress hittades.");
+      if (!json.addresses?.length) {
+        Alert.alert("Ingen adress hittades");
+        return;
       }
-    } catch (err) {
-      Alert.alert("Fel vid NFC-läsning");
+
+      setFormData(json);
+      setCheckStatus(Number(json.Checkstatus ?? 0));
+      setChid(Number(json.CHID ?? 0));
+
+    } catch {
+      Alert.alert("Fel vid NFC");
     } finally {
-      setLoading(false);
       NfcManager.cancelTechnologyRequest();
+      setLoading(false);
     }
   };
 
   const handleCheck = async () => {
-    if (!selectedAddress) {
-      Alert.alert("Välj projekt", "Du måste välja en adress.");
-      return;
-    }
+    if (!selectedAddress) return Alert.alert("Välj projekt");
 
-    const isCheckInState =
-      checkStatus === 3 || checkStatus === null || checkStatus === 0;
+    const isCheckIn = checkStatus === 3 || checkStatus === null || checkStatus === 0;
 
-    if (isCheckInState && !selectedService) {
-      Alert.alert("Välj tjänst", "Du måste välja en tjänst.");
-      return;
-    }
+    if (isCheckIn && !selectedService) return Alert.alert("Välj service");
 
-    const session = await checkSession();
-    if (!session || !session.user_id) {
-      Alert.alert("Session saknas", "Logga in igen.");
-      router.replace("/login");
-      return;
-    }
+    const form = new URLSearchParams();
+    form.append("session_id", sessionId ?? "");
+    form.append("rid", rid ?? "");
+    form.append("PRID", selectedAddress);
+    if (isCheckIn) form.append("RSPID", selectedService);
+    if (chid !== null) form.append("CHID", String(chid));
 
-    const rid = String(session.user_id);
-    const sessionId = await SecureStore.getItemAsync("phpSessionId");
-
-    const formData = new URLSearchParams();
-    formData.append("rid", rid);
-    formData.append("PRID", selectedAddress);
-    formData.append("session_id", sessionId ?? "");
-    if (isCheckInState) formData.append("RSPID", selectedService);
-    if (chid !== null) formData.append("CHID", String(chid));
-
-    let url =
+    const url =
       checkStatus === 1
         ? "https://rapportskollen.com/mobile/checkout.php"
         : "https://rapportskollen.com/mobile/checkin.php";
 
     const res = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: formData.toString(),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form.toString(),
     });
 
-    const text = await res.text();
+    const json = JSON.parse(await res.text());
 
-    let json;
-    try {
-      json = JSON.parse(text.trim());
-    } catch {
-      Alert.alert("Fel", "Ogiltigt svar från server.");
-      return;
-    }
+    if (!json.success) return Alert.alert("Fel", json.message);
 
-    if (json.success) {
-      if (checkStatus === 1) {
-        await SecureStore.deleteItemAsync("checkedAddress");
-      } else {
-        await SecureStore.setItemAsync("checkedAddress", selectedAddressLabel);
-      }
-
-      router.replace("/(tabs)");
-      return;
-    }
-
-    Alert.alert("Fel", json.message || "Misslyckades att skicka.");
+    router.replace("/(tabs)");
   };
 
-  const isCheckInState =
-    checkStatus === 3 || checkStatus === null || checkStatus === 0;
-
-  const buttonText = checkStatus === 1 ? "Checka ut" : "Checka in";
+  const isCheckIn = checkStatus === 1 ? false : true;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>NFC Check-in / Check-out</Text>
+    <ScrollView
+      contentContainerStyle={[styles.container, {
+        backgroundColor: theme.COLORS.background
+      }]}
+    >
+      <Text style={[styles.title, { color: theme.COLORS.text }]}>
+        NFC Check-in / Check-out
+      </Text>
 
       <TouchableOpacity
-        style={[styles.button, loading && { opacity: 0.6 }]}
+        style={[styles.button, { backgroundColor: theme.COLORS.primary }]}
         onPress={readNfc}
-        disabled={loading}
       >
         {loading ? (
-          <ActivityIndicator color="#fff" />
+          <ActivityIndicator color={theme.COLORS.white} />
         ) : (
           <Text style={styles.buttonText}>Skanna NFC</Text>
         )}
       </TouchableOpacity>
 
       {formData && (
-        <View style={styles.form}>
-          <View
-            style={[
-              styles.statusBox,
-              { backgroundColor: isCheckInState ? COLORS.primary : COLORS.success },
-            ]}
+        <>
+          <Text style={[styles.sectionTitle, { color: theme.COLORS.text }]}>
+            Välj adress
+          </Text>
+
+          <Picker
+            selectedValue={selectedAddress}
+            onValueChange={setSelectedAddress}
+            style={[styles.picker, { backgroundColor: theme.COLORS.card }]}
           >
-            <Text style={styles.statusText}>
-              {checkStatus === 1 ? "✅ Incheckad" : "🔵 Ej incheckad"}
-            </Text>
-            {chid && <Text style={styles.statusSub}>CHID: {chid}</Text>}
-          </View>
+            <Picker.Item label="Välj adress..." value="" />
+            {formData.addresses.map((a:any) => (
+              <Picker.Item key={a.PRID} label={a.Address} value={a.PRID} />
+            ))}
+          </Picker>
 
-          <Text style={styles.sectionTitle}>Välj Adress</Text>
-          <View style={styles.pickerBox}>
-            <Picker
-              selectedValue={selectedAddress}
-              onValueChange={(v, idx) => {
-                setSelectedAddress(v);
-                const label =
-                  idx > 0 && formData.addresses[idx - 1]
-                    ? formData.addresses[idx - 1].Address
-                    : "";
-                setSelectedAddressLabel(label);
-              }}
-            >
-              <Picker.Item label="Välj adress..." value="" />
-              {formData.addresses.map((item: any, idx: number) => (
-                <Picker.Item
-                  key={idx}
-                  label={`${item.Address} ** ${item.PRID}`}
-                  value={item.PRID}
-                />
-              ))}
-            </Picker>
-          </View>
-
-          {isCheckInState && (
+          {isCheckIn && (
             <>
-              <Text style={styles.sectionTitle}>Välj Tjänst</Text>
-              <View style={styles.pickerBox}>
-                <Picker
-                  selectedValue={selectedService}
-                  onValueChange={(v) => setSelectedService(v)}
-                >
-                  <Picker.Item label="Välj tjänst..." value="" />
-                  {formData.services?.map((s: any, idx: number) => (
-                    <Picker.Item key={idx} label={s.Service} value={s.RSPID} />
-                  ))}
-                </Picker>
-              </View>
+              <Text style={[styles.sectionTitle, { color: theme.COLORS.text }]}>
+                Välj tjänst
+              </Text>
+
+              <Picker
+                selectedValue={selectedService}
+                onValueChange={setSelectedService}
+                style={[styles.picker, { backgroundColor: theme.COLORS.card }]}
+              >
+                <Picker.Item label="Välj tjänst..." value="" />
+                {formData.services.map((s:any) => (
+                  <Picker.Item key={s.RSPID} label={s.Service} value={s.RSPID} />
+                ))}
+              </Picker>
             </>
           )}
 
           <TouchableOpacity
-            style={[
-              styles.submitButton,
-              { backgroundColor: isCheckInState ? COLORS.primary : COLORS.success },
-            ]}
+            style={[styles.button, { backgroundColor: theme.COLORS.primary }]}
             onPress={handleCheck}
           >
-            <Text style={styles.submitText}>{buttonText}</Text>
+            <Text style={styles.buttonText}>
+              {checkStatus === 1 ? "Checka ut" : "Checka in"}
+            </Text>
           </TouchableOpacity>
-        </View>
+        </>
       )}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    padding: 20,
-  },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 20 },
+  container: { padding: 25, flexGrow: 1 },
+  title: { fontSize: 22, fontWeight: "700", marginBottom: 16 },
   button: {
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: 40,
     paddingVertical: 15,
     borderRadius: 10,
-  },
-  buttonText: { color: "#fff", fontSize: 18, fontWeight: "600" },
-  form: { marginTop: 30, width: "100%" },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-    marginTop: 15,
-  },
-  pickerBox: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  statusBox: {
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 15,
     alignItems: "center",
+    marginBottom: 20,
   },
-  statusText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  statusSub: { color: "#fff", fontSize: 14, marginTop: 5 },
-  submitButton: {
-    marginTop: 20,
-    paddingVertical: 15,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  submitText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  buttonText: { color: "#fff", fontSize: 18, fontWeight: "700" },
+  sectionTitle: { fontSize: 18, marginTop: 20, marginBottom: 10 },
+  picker: { borderRadius: 8 },
 });

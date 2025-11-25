@@ -1,18 +1,25 @@
 {
   "expo": {
-    "name": "rapportskollen-app",
+    "name": "Rapportskollen",
     "slug": "rapportskollen-app",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rapportskollenapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "jsEngine": "jsc",
+
     "ios": {
+      "buildNumber": "5",
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.rapportskollenapp"
+      "bundleIdentifier": "com.anonymous.rapportskollenapp",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NFCReaderUsageDescription": "Appen använder NFC för att läsa arbetstaggar."
+      }
     },
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
@@ -24,12 +31,15 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.anonymous.rapportskollenapp"
     },
+
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
+
     "plugins": [
       "expo-router",
+
       [
         "expo-splash-screen",
         {
@@ -42,12 +52,34 @@
           }
         }
       ],
-      "expo-secure-store"
+
+      "expo-secure-store",
+
+      [
+        "react-native-nfc-manager",
+        {
+          "iosNFCUsageDescription": "Appen använder NFC för att läsa arbetstaggar.",
+          "enableNdefFormat": false
+        }
+      ],
+
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "buildToolsVersion": "34.0.0"
+          }
+        }
+      ]
     ],
+
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
     },
+
     "extra": {
       "router": {},
       "eas": {

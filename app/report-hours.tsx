@@ -49,48 +49,54 @@ export default function ReportHoursScreen() {
 
   const searchAddress = async () => {
     if (!addressInput.trim()) {
-      return Alert.alert("Fel", "Ange adress för att söka");
+      Alert.alert("Fel", "Ange adress för att söka");
+      return;
     }
 
     setLoading(true);
 
     try {
+
       const session = await checkSession();
-      if (!session || !session.user_id) {
+      if (!session?.user_id) {
         Alert.alert("Session saknas", "Logga in igen");
-        return router.replace("/login");
+        router.replace("/login");
+        return;
       }
 
       const sessionId = await SecureStore.getItemAsync("phpSessionId");
       const rid = String(session.user_id);
 
-      const body =
-        `session_id=${encodeURIComponent(sessionId ?? "")}` +
-        `&rid=${encodeURIComponent(rid)}` +
-        `&address=${encodeURIComponent(addressInput)}`;
+      const res = await fetch(
+        "https://rapportskollen.com/mobile/report.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body:
+            `session_id=${encodeURIComponent(sessionId ?? "")}` +
+            `&rid=${encodeURIComponent(rid)}` +
+            `&address=${encodeURIComponent(addressInput)}`
+        }
+      );
 
-      const res = await fetch("https://rapportskollen.com/mobile/report.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body,
-      });
+      const text = await res.text();
+      console.log("report.php →", text);
 
-      const txt = await res.text();
-      console.log("✅ report.php →", txt);
-
-      let data: any = {};
+      let data;
       try {
-        data = JSON.parse(txt);
+        data = JSON.parse(text);
       } catch {
-        return Alert.alert("Fel", "Ogiltigt svar från servern");
+        Alert.alert("Fel", "Ogiltigt svar från servern");
+        return;
       }
 
-      setAddresses(data.addresses || []);
-      setServices(data.services || []);
+      setAddresses(data.addresses ?? []);
+      setServices(data.services ?? []);
 
       if (!data.addresses?.length) {
         Alert.alert("Ingen träff", "Inga projekt hittades.");
       }
+
     } catch (err) {
       console.log(err);
       Alert.alert("Fel", "Kunde inte hämta data");
@@ -102,14 +108,16 @@ export default function ReportHoursScreen() {
   const submitHours = async () => {
     if (!selectedAddress) return Alert.alert("Välj adress");
     if (!selectedService) return Alert.alert("Välj tjänst");
-    if (!date.trim()) return Alert.alert("Ange datum");
-    if (!hours.trim()) return Alert.alert("Ange timmar");
+    if (!date) return Alert.alert("Ange datum");
+    if (!hours) return Alert.alert("Ange timmar");
 
     try {
+
       const session = await checkSession();
-      if (!session || !session.user_id) {
+      if (!session?.user_id) {
         Alert.alert("Session saknas", "Logga in igen");
-        return router.replace("/login");
+        router.replace("/login");
+        return;
       }
 
       const sessionId = await SecureStore.getItemAsync("phpSessionId");
@@ -134,17 +142,12 @@ export default function ReportHoursScreen() {
       );
 
       const txt = await res.text();
-      console.log("✅ report_do.php →", txt);
+      console.log("report_do.php →", txt);
 
-      let json: any = null;
-      try {
-        json = JSON.parse(txt.trim());
-      } catch {
-        console.log("JSON parse issue", txt);
-      }
+      const json = JSON.parse(txt);
 
-      if (json?.success) {
-        Alert.alert("✅ Klart", json.message || "Rapporteringen lyckades");
+      if (json.success) {
+        Alert.alert("Klart", json.message ?? "");
 
         setAddressInput("");
         setSelectedAddress("");
@@ -156,13 +159,10 @@ export default function ReportHoursScreen() {
         return;
       }
 
-      Alert.alert("Fel", json?.message || "Misslyckades att skicka");
+      Alert.alert("Fel", json.message ?? "Misslyckades");
     } catch (err) {
       console.log(err);
-      Alert.alert(
-        "Fel",
-        "Ett fel uppstod, men kontrollera ifall timmarna sparades."
-      );
+      Alert.alert("Fel", "Ett fel uppstod.");
     }
   };
 
@@ -172,6 +172,7 @@ export default function ReportHoursScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerStyle={styles.scroll}>
+
         <Text style={styles.header}>Rapportera arbetstid</Text>
 
         <TextInput
@@ -186,12 +187,11 @@ export default function ReportHoursScreen() {
           onPress={searchAddress}
           disabled={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Sök</Text>
-          )}
+          {loading
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.buttonText}>Sök</Text>}
         </TouchableOpacity>
+
 
         {addresses.length > 0 && (
           <>
@@ -229,36 +229,30 @@ export default function ReportHoursScreen() {
 
             {showDatePicker && (
               <DateTimePicker
-                value={date ? new Date(date) : new Date()}
+                value={new Date()}
                 mode="date"
-                onChange={(event: any, selected) => {
+                onChange={(event, selected) => {
                   setShowDatePicker(false);
-                  if (selected) {
-                    setDate(selected.toISOString().split("T")[0]);
-                  }
+                  if (selected) setDate(selected.toISOString().split("T")[0]);
                 }}
               />
             )}
 
             <Text style={styles.label}>Timmar</Text>
+
             <TouchableOpacity
               style={styles.input}
               onPress={() => setShowTimePicker(true)}
             >
-              <Text>{hours || "Välj tid (ex: 08:00)"}</Text>
+              <Text>{hours || "Välj tid"}</Text>
             </TouchableOpacity>
 
             {showTimePicker && (
               <DateTimePicker
-                value={(() => {
-                  const d = new Date();
-                  d.setHours(8);
-                  d.setMinutes(0);
-                  return d;
-                })()}
+                value={new Date()}
                 mode="time"
                 is24Hour={true}
-                onChange={(event: any, selected) => {
+                onChange={(event, selected) => {
                   setShowTimePicker(false);
                   if (selected) {
                     const h = selected.getHours().toString().padStart(2, "0");
@@ -274,6 +268,7 @@ export default function ReportHoursScreen() {
             </TouchableOpacity>
           </>
         )}
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -287,30 +282,30 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 22,
     fontWeight: "700",
-    marginBottom: 10,
+    marginBottom: 15,
     color: COLORS.primary,
   },
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
     padding: 12,
-    marginVertical: 8,
-  },
-  picker: {
-    marginVertical: 10,
-    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    marginBottom: 10,
   },
   label: {
     fontWeight: "600",
     marginTop: 10,
+  },
+  picker: {
+    backgroundColor: "#f5f5f5",
+    marginBottom: 10,
   },
   button: {
     backgroundColor: COLORS.success,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 15,
   },
   buttonText: {
     color: "#fff",

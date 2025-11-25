@@ -11,7 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { COLORS } from "../constants/theme";
+
+import { useTheme } from "../constants/theme";
 import { checkSession } from "../utils/checkSession";
 
 type AddressOption = { PRID: string; Address: string };
@@ -19,6 +20,7 @@ type ServiceOption = { RSPID: string; Service: string };
 
 export default function GPSCheckScreen() {
   const router = useRouter();
+  const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
   const [road, setRoad] = useState<string | null>(null);
@@ -45,8 +47,6 @@ export default function GPSCheckScreen() {
         }
 
         const sessionId = await SecureStore.getItemAsync("phpSessionId");
-        const rid = String(session.user_id);
-        const paid = session.manual ?? 0;
 
         const { status } = await Location.requestForegroundPermissionsAsync();
         if (status !== "granted") {
@@ -73,8 +73,8 @@ export default function GPSCheckScreen() {
             headers: { "Content-Type": "application/x-www-form-urlencoded" },
             body:
               `session_id=${encodeURIComponent(sessionId ?? "")}` +
-              `&rid=${encodeURIComponent(rid)}` +
-              `&paid=${encodeURIComponent(paid)}` +
+              `&rid=${encodeURIComponent(String(session.user_id))}` +
+              `&paid=${encodeURIComponent(String(session.manual ?? 0))}` +
               `&address=${encodeURIComponent(streetName)}` +
               `&lat=${encodeURIComponent(latitude)}` +
               `&lon=${encodeURIComponent(longitude)}`,
@@ -82,22 +82,20 @@ export default function GPSCheckScreen() {
         );
 
         const txt = await res.text();
-        console.log("display_project_and_services.php →", txt);
-
         let data: any = {};
+
         try {
           data = JSON.parse(txt);
         } catch {}
 
-        const addr = data.addresses || [];
-        setAddresses(addr);
+        setAddresses(data.addresses || []);
         setServices(data.services || []);
 
-        if (addr.length === 0) {
-          setAddressWarning("Ingen adress hittades för din GPS-position.");
-        } else {
-          setAddressWarning(null);
-        }
+        setAddressWarning(
+          data.addresses?.length === 0
+            ? "Ingen adress hittades vid denna position."
+            : null
+        );
 
         setCheckStatus(
           data.Checkstatus !== undefined && data.Checkstatus !== null
@@ -105,59 +103,50 @@ export default function GPSCheckScreen() {
             : null
         );
 
-        // ✅ Safe CHID parsing
         setChid(
-          data.CHID !== undefined &&
-          data.CHID !== null &&
-          data.CHID !== ""
+          data.CHID !== undefined && data.CHID !== null && data.CHID !== ""
             ? Number(data.CHID)
             : null
         );
-
-      } catch (err) {
-        console.error(err);
-        Alert.alert("Fel", "Kunde inte hämta plats eller data");
+      } catch {
+        Alert.alert("Fel", "Kunde inte hämta platsinformation.");
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
+  const isCheckInState =
+    checkStatus === 3 || checkStatus === null || checkStatus === 0;
+
   const handleCheckIn = async () => {
     if (!selectedAddress) {
-      Alert.alert("Välj projekt", "Du måste välja ett PRID.");
+      Alert.alert("Välj projekt först");
       return;
     }
 
-    const isCheckInState =
-      checkStatus === 3 || checkStatus === null || checkStatus === 0;
-
     if (isCheckInState && !selectedService) {
-      Alert.alert("Välj service", "Du måste välja en service.");
+      Alert.alert("Välj service");
       return;
     }
 
     try {
       const session = await checkSession();
-      if (!session?.user_id) {
-        Alert.alert("Session saknas", "Logga in igen");
-        router.replace("/login");
-        return;
-      }
+      if (!session?.user_id) return;
 
-      const rid = String(session.user_id);
       const sessionId = await SecureStore.getItemAsync("phpSessionId");
-
-      console.log("Submitting PRID:", selectedAddress);
-      console.log("Submitting RSPID:", selectedService);
-      console.log("Using PHPSESSID:", sessionId);
 
       const form = new URLSearchParams();
       form.append("session_id", sessionId ?? "");
-      form.append("rid", rid);
+      form.append("rid", String(session.user_id));
       form.append("PRID", selectedAddress);
-      if (isCheckInState) form.append("RSPID", selectedService);
-      if (chid !== null) form.append("CHID", String(chid));
+
+      if (isCheckInState) {
+        form.append("RSPID", selectedService);
+      }
+      if (chid !== null) {
+        form.append("CHID", String(chid));
+      }
 
       const url =
         checkStatus === 1
@@ -177,59 +166,62 @@ export default function GPSCheckScreen() {
       const json = JSON.parse(text);
 
       if (json.success) {
-        if (checkStatus === 1) {
-          await SecureStore.deleteItemAsync("checkedAddress");
-        } else {
-          const addrName =
-            addresses.find((a) => a.PRID === selectedAddress)?.Address || "";
-          await SecureStore.setItemAsync("checkedAddress", addrName);
-        }
-
-        Alert.alert("Klart", json.message || "Inskickat");
+        Alert.alert("OK", json.message);
         router.replace("/(tabs)");
-        return;
+      } else {
+        Alert.alert("Fel", json.message || "Misslyckades");
       }
-
-      Alert.alert("Fel", json.message || "Misslyckades att skicka");
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Fel", "Ett fel uppstod vid inlämning");
+    } catch {
+      Alert.alert("Fel", "Serverfel.");
     }
   };
 
-  const isCheckInState =
-    checkStatus === 3 || checkStatus === null || checkStatus === 0;
-
-  const buttonText = checkStatus === 1 ? "Checka ut" : "Checka in";
-
   if (loading) {
     return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" />
-        <Text>Laddar platsinformation...</Text>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: theme.COLORS.background },
+        ]}
+      >
+        <ActivityIndicator size="large" color={theme.COLORS.primary} />
+        <Text style={{ color: theme.COLORS.text, marginTop: 10 }}>
+          Laddar GPS…
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>GPS Check</Text>
-      {road && <Text style={styles.address}>{road}</Text>}
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: theme.COLORS.background },
+      ]}
+    >
+      <Text style={[styles.header, { color: theme.COLORS.text }]}>
+        GPS Check
+      </Text>
 
-      {addressWarning && (
-        <Text style={styles.warningText}>{addressWarning}</Text>
+      {road && (
+        <Text style={[styles.address, { color: theme.COLORS.primary }]}>
+          {road}
+        </Text>
       )}
 
-      <Text style={styles.label}>Välj Address / Projekt:</Text>
+      {addressWarning && (
+        <Text style={[styles.warningText, { color: theme.COLORS.error }]}>
+          {addressWarning}
+        </Text>
+      )}
+
+      <Text style={[styles.label, { color: theme.COLORS.text }]}>Välj projekt:</Text>
 
       <Picker
         selectedValue={selectedAddress}
-        onValueChange={(val) => {
-          console.log("Selected PRID:", val);
-          setSelectedAddress(String(val));
-        }}
-        style={styles.picker}
-        enabled={addresses.length > 0}
+        onValueChange={(v) => setSelectedAddress(String(v))}
+        style={[styles.picker, { backgroundColor: theme.COLORS.card }]}
+        dropdownIconColor={theme.COLORS.text}
       >
         <Picker.Item label="-- Välj adress --" value="" />
         {addresses.map((a, i) => (
@@ -238,45 +230,75 @@ export default function GPSCheckScreen() {
       </Picker>
 
       {isCheckInState && addresses.length > 0 && (
-        <View>
-          <Text style={styles.label}>Välj service:</Text>
+        <>
+          <Text style={[styles.label, { color: theme.COLORS.text }]}>Välj service:</Text>
 
           <Picker
             selectedValue={selectedService}
-            onValueChange={(val) => {
-              console.log("Selected RSPID:", val);
-              setSelectedService(String(val));
-            }}
-            style={styles.picker}
+            onValueChange={(v) => setSelectedService(String(v))}
+            style={[styles.picker, { backgroundColor: theme.COLORS.card }]}
+            dropdownIconColor={theme.COLORS.text}
           >
             <Picker.Item label="-- Välj service --" value="" />
             {services.map((s, i) => (
               <Picker.Item key={i} label={s.Service} value={s.RSPID} />
             ))}
           </Picker>
-        </View>
+        </>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleCheckIn}>
-        <Text style={styles.buttonText}>{buttonText}</Text>
+      <TouchableOpacity
+        style={[
+          styles.button,
+          { backgroundColor: theme.COLORS.primary },
+        ]}
+        onPress={handleCheckIn}
+      >
+        <Text style={styles.buttonText}>
+          {checkStatus === 1 ? "Checka ut" : "Checka in"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff", padding: 20 },
-  header: { fontSize: 22, fontWeight: "700", marginBottom: 10 },
-  address: { marginBottom: 15, color: COLORS.primary },
-  picker: { marginVertical: 10, backgroundColor: "#f5f5f5" },
-  label: { fontWeight: "600", marginTop: 10 },
-  warningText: { color: "red", fontWeight: "600", marginBottom: 10 },
+  container: { flex: 1, padding: 20 },
+
+  header: {
+    fontSize: 22,
+    fontWeight: "700",
+    marginBottom: 10,
+  },
+
+  address: {
+    marginBottom: 15,
+  },
+
+  warningText: {
+    fontWeight: "600",
+    marginBottom: 12,
+  },
+
+  picker: {
+    marginVertical: 10,
+    borderRadius: 8,
+  },
+
+  label: {
+    fontWeight: "600",
+    marginTop: 10,
+  },
+
   button: {
-    backgroundColor: COLORS.primary,
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 20,
   },
-  buttonText: { color: "#fff", fontWeight: "700" },
+
+  buttonText: {
+    color: "#fff",
+    fontWeight: "700",
+  },
 });

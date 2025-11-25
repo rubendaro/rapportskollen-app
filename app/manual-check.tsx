@@ -41,7 +41,7 @@ export default function ManualCheckScreen() {
     }
 
     const session = await checkSession();
-    if (!session || !session.user_id) {
+    if (!session?.user_id) {
       Alert.alert("Session saknas", "Logga in igen.");
       return router.replace("/login");
     }
@@ -69,31 +69,32 @@ export default function ManualCheckScreen() {
       );
 
       const txt = await res.text();
-      console.log("Manual display_project_and_services.php →", txt);
+      console.log("Manual →", txt);
 
       let data: any = {};
-      try {
-        data = JSON.parse(txt);
-      } catch {}
+      try { data = JSON.parse(txt); } catch {}
 
       const addr = data.addresses || [];
       setAddresses(addr);
       setServices(data.services || []);
 
-      if (addr.length === 0) {
-        setAddressWarning("⚠️ Ingen adress hittades, prova igen.");
-        Alert.alert("Ingen träff", "Inga projekt hittades.");
-      } else {
-        setAddressWarning(null);
-      }
+      addr.length === 0
+        ? setAddressWarning("⚠️ Ingen adress hittades")
+        : setAddressWarning(null);
 
       setCheckStatus(
         data.Checkstatus !== undefined ? Number(data.Checkstatus) : null
       );
 
-      setChid(data.CHID !== undefined ? Number(data.CHID) : null);
+      setChid(
+        data.CHID !== undefined &&
+        data.CHID !== null &&
+        data.CHID !== ""
+          ? Number(data.CHID)
+          : null
+      );
+
     } catch (err) {
-      console.error(err);
       Alert.alert("Fel", "Kunde inte hämta data.");
     }
 
@@ -105,18 +106,18 @@ export default function ManualCheckScreen() {
 
   const handleCheckIn = async () => {
     if (!selectedAddress) {
-      Alert.alert("Välj projekt", "Du måste välja ett projekt.");
+      Alert.alert("Välj projekt");
       return;
     }
 
     if (isCheckInState && !selectedService) {
-      Alert.alert("Välj service", "Du måste välja en service.");
+      Alert.alert("Välj service");
       return;
     }
 
     const session = await checkSession();
-    if (!session || !session.user_id) {
-      Alert.alert("Session saknas", "Logga in igen.");
+    if (!session?.user_id) {
+      Alert.alert("Session saknas");
       return router.replace("/login");
     }
 
@@ -138,35 +139,30 @@ export default function ManualCheckScreen() {
 
       const res = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: form.toString(),
       });
 
       const text = await res.text();
-      console.log("Manual Check submit →", text);
-
       const json = JSON.parse(text);
 
       if (json.success) {
-        if (checkStatus === 1) {
-          await SecureStore.deleteItemAsync("checkedAddress");
-        } else {
-          const addrName =
-            addresses.find((a) => a.PRID === selectedAddress)?.Address || "";
-          await SecureStore.setItemAsync("checkedAddress", addrName);
-        }
+        const name =
+          addresses.find(a => a.PRID === selectedAddress)?.Address ?? "";
 
-        Alert.alert("✅ Klar", json.message || "Inskickat");
+        if (checkStatus === 1)
+          await SecureStore.deleteItemAsync("checkedAddress");
+        else
+          await SecureStore.setItemAsync("checkedAddress", name);
+
+        Alert.alert("Klar", json.message);
         router.replace("/(tabs)");
-        return;
+      } else {
+        Alert.alert("Fel", json.message);
       }
 
-      Alert.alert("Fel", json.message || "Misslyckades");
-    } catch (err) {
-      console.error(err);
-      Alert.alert("Fel", "Ett fel uppstod vid inlämning.");
+    } catch {
+      Alert.alert("Fel", "Ett fel uppstod");
     }
   };
 
@@ -182,9 +178,10 @@ export default function ManualCheckScreen() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView contentContainerStyle={styles.scroll}>
+
         <Text style={styles.header}>Manuell incheckning</Text>
 
-        <Text style={styles.label}>Ange adress manuellt:</Text>
+        <Text style={styles.label}>Adress:</Text>
         <TextInput
           style={styles.input}
           placeholder="T.ex. Gatunamn"
@@ -197,25 +194,21 @@ export default function ManualCheckScreen() {
           onPress={fetchProjectsManually}
           disabled={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Sök adress</Text>
-          )}
+          {loading
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.buttonText}>Sök adress</Text>}
         </TouchableOpacity>
 
-        {addressWarning && (
-          <Text style={styles.warningText}>{addressWarning}</Text>
-        )}
+        {addressWarning && <Text style={styles.warningText}>{addressWarning}</Text>}
 
-        <Text style={styles.label}>Välj adress:</Text>
+        <Text style={styles.label}>Projekt:</Text>
         <Picker
           selectedValue={selectedAddress}
           onValueChange={(val) => setSelectedAddress(String(val))}
           style={styles.picker}
           enabled={addresses.length > 0}
         >
-          <Picker.Item label="-- Välj adress --" value="" />
+          <Picker.Item label="-- Välj --" value="" />
           {addresses.map((a, i) => (
             <Picker.Item key={i} label={a.Address} value={a.PRID} />
           ))}
@@ -223,13 +216,13 @@ export default function ManualCheckScreen() {
 
         {isCheckInState && addresses.length > 0 && (
           <>
-            <Text style={styles.label}>Välj service:</Text>
+            <Text style={styles.label}>Service:</Text>
             <Picker
               selectedValue={selectedService}
               onValueChange={(val) => setSelectedService(String(val))}
               style={styles.picker}
             >
-              <Picker.Item label="-- Välj service --" value="" />
+              <Picker.Item label="-- Välj --" value="" />
               {services.map((s, i) => (
                 <Picker.Item key={i} label={s.Service} value={s.RSPID} />
               ))}
@@ -244,45 +237,20 @@ export default function ManualCheckScreen() {
         >
           <Text style={styles.buttonText}>{buttonText}</Text>
         </TouchableOpacity>
+
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: {
-    padding: 20,
-    paddingBottom: 80,
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: "700",
-    marginBottom: 15,
-    color: "green",
-  },
-  label: { fontWeight: "600", marginTop: 10 },
-  input: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 5,
-  },
-  fetchButton: {
-    backgroundColor: "green",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  picker: { marginVertical: 10, backgroundColor: "#f5f5f5" },
-  button: {
-    backgroundColor: "green",
-    padding: 15,
-    borderRadius: 8,
-    alignItems: "center",
-    marginTop: 20,
-  },
-  buttonText: { color: "#fff", fontWeight: "700" },
-  warningText: { color: "red", marginTop: 10, fontWeight: "600" },
+  scroll: { padding:20, paddingBottom:80 },
+  header: { fontSize:22, fontWeight:"700", marginBottom:15, color:"green" },
+  label: { fontWeight:"600", marginTop:10 },
+  input:{ borderColor:"#ccc", borderWidth:1, padding:10, borderRadius:8, marginTop:5 },
+  fetchButton:{ backgroundColor:"green", padding:15, borderRadius:8, alignItems:"center", marginTop:10 },
+  picker:{ marginVertical:10, backgroundColor:"#f5f5f5" },
+  button:{ backgroundColor:"green", padding:15, borderRadius:8, alignItems:"center", marginTop:20 },
+  buttonText:{ color:"#fff", fontWeight:"700" },
+  warningText:{ color:"red", marginTop:10, fontWeight:"600" }
 });

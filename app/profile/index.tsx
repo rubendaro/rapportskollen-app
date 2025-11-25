@@ -1,27 +1,23 @@
 import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
   Alert,
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
+import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import * as ImagePicker from "expo-image-picker";
-import { MaterialIcons } from "@expo/vector-icons";
-
-const COLORS = {
-  background: "#FFFFFF",
-  primary: "#7EB734",
-  secondary: "#2D3748",
-  gray: "#718096",
-};
+import { useTheme } from "../../constants/theme";
 
 export default function Profile() {
+  const theme = useTheme();
   const router = useRouter();
+
   const [name, setName] = useState<string | null>(null);
   const [email, setEmail] = useState<string | null>(null);
   const [avatar, setAvatar] = useState<string | null>(null);
@@ -38,6 +34,7 @@ export default function Profile() {
       if (savedAvatar) setAvatar(savedAvatar);
       if (savedCompanyLogo) setCompanyLogo(savedCompanyLogo);
     };
+
     loadUser();
   }, []);
 
@@ -70,30 +67,47 @@ export default function Profile() {
       : require("../../assets/images/logo.png");
 
   return (
-    <View style={styles.container}>
-
-      {/* ✅ Tap circle to pick image */}
-      <TouchableOpacity style={styles.avatarWrapper} onPress={pickImage}>
+    <View style={[styles.container, { backgroundColor: theme.COLORS.background }]}>
+      {/* Avatar */}
+      <TouchableOpacity
+        style={[
+          styles.avatarWrapper,
+          { borderColor: theme.COLORS.primary },
+        ]}
+        onPress={pickImage}
+      >
         <Image source={displayImage} style={styles.avatar} />
       </TouchableOpacity>
 
-      <Text style={styles.nameText}>{name ?? "Användare"}</Text>
-      <Text style={styles.emailText}>{email ?? ""}</Text>
+      <Text style={[styles.nameText, { color: theme.COLORS.text }]}>
+        {name ?? "Användare"}
+      </Text>
 
-      <TouchableOpacity style={styles.button} onPress={() => alert("Edit profile coming soon!")}>
+      <Text style={[styles.emailText, { color: theme.COLORS.gray }]}>
+        {email ?? ""}
+      </Text>
+
+      {/* Buttons */}
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: theme.COLORS.primary }]}
+        onPress={() => alert("Edit profile coming soon!")}
+      >
         <MaterialIcons name="edit" size={22} color="#fff" />
         <Text style={styles.buttonText}>Redigera profil</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.button}
+        style={[styles.button, { backgroundColor: theme.COLORS.primary }]}
         onPress={() => router.push("/profile/change-password")}
       >
         <MaterialIcons name="lock" size={22} color="#fff" />
         <Text style={styles.buttonText}>Ändra lösenord</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={() => alert("Rapportskollen App\nVersion 1.0")}>
+      <TouchableOpacity
+        style={[styles.button, { backgroundColor: theme.COLORS.primary }]}
+        onPress={() => alert("Rapportskollen App\nVersion 1.0")}
+      >
         <MaterialIcons name="info" size={22} color="#fff" />
         <Text style={styles.buttonText}>Om appen</Text>
       </TouchableOpacity>
@@ -105,45 +119,42 @@ export default function Profile() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
     padding: 20,
     alignItems: "center",
     paddingTop: 50,
   },
 
- avatarWrapper: {
-  width: 120,
-  height: 120,
-  borderRadius: 60,
-  alignItems: "center",
-  justifyContent: "center",
-  marginBottom: 12,
-},
+  avatarWrapper: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 3,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
 
-avatar: {
-  width: 120,
-  height: 120,
-  borderRadius: 60,
-  resizeMode: "cover",   // ✅ full image crop like real avatar
-  backgroundColor: "#eee", // subtle background in case no logo
-},
-
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    resizeMode: "cover",
+    backgroundColor: "#eee",
+  },
 
   nameText: {
     fontSize: 22,
     fontWeight: "700",
-    color: COLORS.secondary,
+    marginTop: 4,
   },
 
   emailText: {
     fontSize: 14,
-    color: COLORS.gray,
     marginBottom: 25,
   },
 
   button: {
     width: "90%",
-    backgroundColor: COLORS.primary,
     paddingVertical: 14,
     borderRadius: 10,
     flexDirection: "row",

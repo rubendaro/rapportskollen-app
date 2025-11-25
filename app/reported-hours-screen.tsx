@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { COLORS, SPACING } from "../constants/theme";
+import { useTheme } from "../constants/theme";
 import { checkSession } from "../utils/checkSession";
 
 interface HourRecord {
@@ -24,17 +24,17 @@ interface HourRecord {
 }
 
 export default function TimeReportScreen() {
+  const { COLORS, SPACING } = useTheme();
+
   const [hours, setHours] = useState<HourRecord[]>([]);
   const [totalHours, setTotalHours] = useState("0.00");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // ✅ Fetch hours safely
   const fetchHours = async () => {
     try {
       setLoading(true);
 
-      // ✅ 1. Validate session
       const session = await checkSession();
       if (!session || !session.user_id) {
         Alert.alert("Session saknas", "Logga in igen");
@@ -44,17 +44,11 @@ export default function TimeReportScreen() {
       }
 
       const sessionId = await SecureStore.getItemAsync("phpSessionId");
-      if (!sessionId) {
-        Alert.alert("Session saknas", "Logga in igen");
-        setLoading(false);
-        setRefreshing(false);
-        return;
-      }
+      if (!sessionId) return;
 
       const rid = String(session.user_id);
       const paid = session.manual ?? 0;
 
-      // ✅ 2. Backend call
       const body =
         `session_id=${encodeURIComponent(sessionId)}` +
         `&rid=${encodeURIComponent(rid)}` +
@@ -70,63 +64,40 @@ export default function TimeReportScreen() {
         }
       );
 
-      const text = await res.text();
-      console.log("📦 Paid hours response:", text);
+      const txt = await res.text();
 
       let data: any = [];
       try {
-        data = JSON.parse(text);
-      } catch (e) {
-        console.log("❗ JSON parse error:", text);
-        Alert.alert("Fel", "Kunde inte läsa svar från servern");
-        return;
-      }
+        data = JSON.parse(txt);
+      } catch {}
 
-      if (!Array.isArray(data)) {
-        console.log("❗ Unexpected format:", data);
-        Alert.alert("Fel", "Felaktigt svar från servern");
-        return;
-      }
-
-      // ✅ Extract totals & rows safely
       const total = data.find((r: any) => r.totalHours)?.totalHours ?? "0.00";
       setTotalHours(total);
 
       const validRows = data.filter((r: any) => r.success);
       setHours(validRows);
-
-      if (validRows.length === 0) {
-        console.log("ℹ️ No hour rows (only totalHours present)");
-        // Stay on page, no navigation or alert
-      }
-    } catch (e) {
-      console.log("❌ Fetch hours error:", e);
-      Alert.alert("Fel", "Kunde inte hämta timmar");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
     }
-
-    setLoading(false);
-    setRefreshing(false);
   };
 
-  // ✅ Load on mount
   useEffect(() => {
     fetchHours();
   }, []);
 
-  // ✅ Pull-to-refresh
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchHours();
   }, []);
 
-  // ✅ Render each row
   const renderItem = ({ item }: { item: HourRecord }) => (
-    <View style={styles.row}>
-      <Text style={[styles.cell, styles.colProject]}>{item.OID}</Text>
-      <Text style={[styles.cell, styles.colDate]}>{item.Datum}</Text>
-      <Text style={[styles.cell, styles.colAddress]}>{item.Adress}</Text>
-      <Text style={[styles.cell, styles.colService]}>{item.Tjänst}</Text>
-      <Text style={[styles.cell, styles.colHours, styles.bold]}>
+    <View style={styles(COLORS, SPACING).row}>
+      <Text style={[styles(COLORS, SPACING).cell, styles(COLORS, SPACING).colProject]}>{item.OID}</Text>
+      <Text style={[styles(COLORS, SPACING).cell, styles(COLORS, SPACING).colDate]}>{item.Datum}</Text>
+      <Text style={[styles(COLORS, SPACING).cell, styles(COLORS, SPACING).colAddress]}>{item.Adress}</Text>
+      <Text style={[styles(COLORS, SPACING).cell, styles(COLORS, SPACING).colService]}>{item.Tjänst}</Text>
+      <Text style={[styles(COLORS, SPACING).cell, styles(COLORS, SPACING).colHours, styles(COLORS, SPACING).bold]}>
         {item.Timmar}
       </Text>
     </View>
@@ -143,18 +114,10 @@ export default function TimeReportScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={styles(COLORS, SPACING).container}>
+      <View style={styles(COLORS, SPACING).header}>
         <MaterialIcons name="schedule" size={28} color="#fff" />
-        <Text style={styles.headerTitle}>Tidsrapport</Text>
-      </View>
-
-      <View style={styles.tableHeader}>
-        <Text style={[styles.headerCell, styles.colProject]}>Projekt</Text>
-        <Text style={[styles.headerCell, styles.colDate]}>Datum</Text>
-        <Text style={[styles.headerCell, styles.colAddress]}>Adress</Text>
-        <Text style={[styles.headerCell, styles.colService]}>Tjänst</Text>
-        <Text style={[styles.headerCell, styles.colHours]}>Tim</Text>
+        <Text style={styles(COLORS, SPACING).headerTitle}>Tidsrapport</Text>
       </View>
 
       <FlatList
@@ -164,90 +127,65 @@ export default function TimeReportScreen() {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
-        ListEmptyComponent={
-          !loading && (
-            <View style={{ alignItems: "center", marginTop: 40 }}>
-              <Text style={{ color: COLORS.secondary }}>
-                Inga timmar rapporterade ännu
-              </Text>
-            </View>
-          )
-        }
-        contentContainerStyle={{ paddingBottom: 80 }}
       />
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Totalt:</Text>
-        <Text style={styles.footerHours}>{totalHours}</Text>
+      <View style={styles(COLORS, SPACING).footer}>
+        <Text style={styles(COLORS, SPACING).footerText}>Totalt:</Text>
+        <Text style={styles(COLORS, SPACING).footerHours}>{totalHours}</Text>
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-    padding: SPACING.m,
-  },
+const styles = (COLORS:any, SPACING:any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: COLORS.background,
+      padding: SPACING.m,
+    },
 
-  header: {
-    backgroundColor: COLORS.primary,
-    padding: SPACING.m,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: SPACING.m,
-  },
-  headerTitle: {
-    color: COLORS.white,
-    fontSize: 20,
-    fontWeight: "700",
-    marginLeft: 8,
-  },
+    header: {
+      backgroundColor: COLORS.primary,
+      padding: SPACING.m,
+      borderRadius: 12,
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: SPACING.m,
+    },
+    headerTitle: {
+      color: COLORS.white,
+      fontSize: 20,
+      fontWeight: "700",
+      marginLeft: 8,
+    },
 
-  tableHeader: {
-    flexDirection: "row",
-    borderBottomWidth: 2,
-    borderColor: COLORS.primary,
-    paddingBottom: 4,
-    marginBottom: 6,
-  },
-  headerCell: {
-    flex: 1,
-    fontWeight: "700",
-    fontSize: 12,
-    color: COLORS.primary,
-  },
+    row: {
+      flexDirection: "row",
+      borderBottomWidth: 1,
+      borderColor: COLORS.border,
+      paddingVertical: 6,
+    },
+    cell: { fontSize: 12, color: COLORS.secondary },
+    bold: { fontWeight: "700" },
 
-  row: {
-    flexDirection: "row",
-    paddingVertical: 6,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-  },
-  cell: { flex: 1, fontSize: 12, color: COLORS.secondary },
-  bold: { fontWeight: "700" },
+    footer: {
+      backgroundColor: COLORS.card,
+      borderRadius: 8,
+      padding: SPACING.m,
+      borderWidth: 1,
+      borderColor: COLORS.primary,
+      position: "absolute",
+      bottom: 20,
+      left: 20,
+      right: 20,
+    },
+    footerText: { color: COLORS.primary, fontWeight: "700" },
+    footerHours: { color: COLORS.primary, fontSize: 18, fontWeight: "800" },
 
-  footer: {
-    backgroundColor: "#E8F4D8",
-    borderRadius: 8,
-    padding: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderWidth: 1.5,
-    borderColor: COLORS.primary,
-    position: "absolute",
-    bottom: 15,
-    left: 15,
-    right: 15,
-  },
-  footerText: { fontSize: 15, fontWeight: "700", color: COLORS.primary },
-  footerHours: { fontSize: 18, fontWeight: "900", color: COLORS.primary },
-
-  colProject: { flex: 0.6 },
-  colDate: { flex: 1.2 },
-  colAddress: { flex: 2.2, paddingLeft: 8 },
-  colService: { flex: 1.2 },
-  colHours: { flex: 0.8, textAlign: "right" },
-});
+    colProject: { flex: 1 },
+    colDate: { flex: 1.3 },
+    colAddress: { flex: 2 },
+    colService: { flex: 1.2 },
+    colHours: { flex: 0.8, textAlign: "right" },
+  });

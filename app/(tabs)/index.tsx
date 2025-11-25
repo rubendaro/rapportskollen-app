@@ -12,10 +12,13 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { COLORS } from "../../constants/theme";
+
+import { useTheme } from "../../constants/theme";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const theme = useTheme();
+
   const [userName, setUserName] = useState<string | null>(null);
   const [checkedAddress, setCheckedAddress] = useState<string | null>(null);
   const [manual, setManual] = useState<string | null>(null);
@@ -147,10 +150,20 @@ export default function HomeScreen() {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* ✅ Profile Header */}
+    <ScrollView
+      contentContainerStyle={[
+        styles.container,
+        { backgroundColor: theme.COLORS.background },
+      ]}
+    >
+      {/* HEADER */}
       <View style={styles.headerBox}>
-        <View style={styles.logoWrapper}>
+        <View
+          style={[
+            styles.logoWrapper,
+            { borderColor: theme.COLORS.primary, backgroundColor: theme.COLORS.card },
+          ]}
+        >
           {companyLogo ? (
             <Image source={{ uri: companyLogo }} style={styles.companyLogo} />
           ) : (
@@ -161,12 +174,17 @@ export default function HomeScreen() {
           )}
         </View>
 
-        <Text style={styles.welcomeText}>
+        <Text style={[styles.welcomeText, { color: theme.COLORS.text }]}>
           {userName ? `Hej ${userName}!` : "Laddar användare..."}
         </Text>
 
         {checkedAddress && (
-          <View style={styles.checkedBox}>
+          <View
+            style={[
+              styles.checkedBox,
+              { backgroundColor: theme.COLORS.primary },
+            ]}
+          >
             <MaterialIcons name="check-circle" size={20} color="#fff" />
             <Text style={styles.checkedText}>
               Incheckad på{" "}
@@ -176,7 +194,7 @@ export default function HomeScreen() {
         )}
       </View>
 
-      {/* ✅ Dashboard Grid */}
+      {/* GRID */}
       <View style={styles.grid}>
         <Card
           icon="history"
@@ -190,28 +208,31 @@ export default function HomeScreen() {
           onPress={() => router.push("/reported-hours-screen")}
         />
 
-        <Card
-          icon="place"
-          label="Plats"
-          onPress={() => router.push("/plats")}
-        />
+        <Card icon="place" label="Plats" onPress={() => router.push("/plats")} />
 
         {renderManualButton()}
       </View>
 
-      {/* ✅ Profile Menu */}
-      <View style={styles.menuContainer}>
+      {/* MENU */}
+      <View
+        style={[
+          styles.menuContainer,
+          { backgroundColor: theme.COLORS.card },
+        ]}
+      >
         <TouchableOpacity
           style={styles.menuItem}
           onPress={() => router.push("/profile")}
         >
-          <MaterialIcons name="person" size={24} color={COLORS.primary} />
-          <Text style={styles.menuText}>Profil</Text>
+          <MaterialIcons name="person" size={24} color={theme.COLORS.primary} />
+          <Text style={[styles.menuText, { color: theme.COLORS.text }]}>
+            Profil
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-          <MaterialIcons name="logout" size={24} color={COLORS.error} />
-          <Text style={[styles.menuText, { color: COLORS.error }]}>
+          <MaterialIcons name="logout" size={24} color={theme.COLORS.error} />
+          <Text style={[styles.menuText, { color: theme.COLORS.error }]}>
             Logga ut
           </Text>
         </TouchableOpacity>
@@ -220,7 +241,6 @@ export default function HomeScreen() {
   );
 }
 
-/* ✅ FIXED: FULLY TYPED CARD COMPONENT */
 type CardProps = {
   icon: keyof typeof MaterialIcons.glyphMap;
   label: string;
@@ -228,8 +248,16 @@ type CardProps = {
 };
 
 function Card({ icon, label, onPress }: CardProps) {
+  const theme = useTheme();
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity
+      style={[
+        styles.card,
+        { backgroundColor: theme.COLORS.primary },
+      ]}
+      onPress={onPress}
+    >
       <MaterialIcons name={icon} size={34} color="#fff" />
       <Text style={styles.cardLabel}>{label}</Text>
     </TouchableOpacity>
@@ -241,7 +269,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingTop: 40,
     paddingBottom: 60,
-    backgroundColor: COLORS.background,
     alignItems: "center",
   },
 
@@ -256,10 +283,8 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 3,
-    borderColor: COLORS.success,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 10,
@@ -276,12 +301,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     marginTop: 12,
-    color: COLORS.secondary,
   },
 
   checkedBox: {
     marginTop: 12,
-    backgroundColor: COLORS.success,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -306,15 +329,10 @@ const styles = StyleSheet.create({
   card: {
     width: "47%",
     aspectRatio: 1,
-    backgroundColor: COLORS.success,
     borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
   },
 
   cardLabel: {
@@ -326,14 +344,9 @@ const styles = StyleSheet.create({
 
   menuContainer: {
     width: "90%",
-    backgroundColor: "#fff",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 4,
   },
 
   menuItem: {
@@ -342,12 +355,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 15,
     borderBottomWidth: 1,
-    borderBottomColor: "#ececec",
+    borderBottomColor: "#3b3b3b22",
   },
 
   menuText: {
     fontSize: 18,
-    color: COLORS.secondary,
     fontWeight: "500",
   },
 });

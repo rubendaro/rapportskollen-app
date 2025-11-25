@@ -1,11 +1,21 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { BUTTON, COLORS, FONT, SPACING } from "../../constants/theme";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useTheme } from "../../constants/theme";
 
 export default function ChangePasswordScreen() {
   const router = useRouter();
+  const theme = useTheme();
+
   const [currentPass, setCurrentPass] = useState("");
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
@@ -13,7 +23,7 @@ export default function ChangePasswordScreen() {
 
   const handleChangePassword = async () => {
     if (!currentPass || !newPass || !confirmPass) {
-      Alert.alert("Fel", "Alla fält måste fyllas i.");
+      Alert.alert("Fel", "Alla fält måste fyllas i.");      
       return;
     }
 
@@ -32,17 +42,19 @@ export default function ChangePasswordScreen() {
         return;
       }
 
-     const response = await fetch("https://rapportskollen.com/mobile/change_password.php", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-    Cookie: `PHPSESSID=${sessionId}`,
-  },
-  body: `current=${encodeURIComponent(currentPass)}&new=${encodeURIComponent(newPass)}&confirm=${encodeURIComponent(confirmPass)}`,
-});
+      const response = await fetch(
+        "https://rapportskollen.com/mobile/change_password.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Cookie: `PHPSESSID=${sessionId}`,
+          },
+          body: `current=${encodeURIComponent(currentPass)}&new=${encodeURIComponent(newPass)}&confirm=${encodeURIComponent(confirmPass)}`,
+        }
+      );
 
       const text = await response.text();
-      console.log("🔐 Change pass response:", text);
       const data = JSON.parse(text);
 
       if (data.success) {
@@ -53,7 +65,6 @@ export default function ChangePasswordScreen() {
       }
 
     } catch (error) {
-      console.log("❌ ERROR:", error);
       Alert.alert("Fel", "Serverproblem. Försök igen.");
     }
 
@@ -61,38 +72,68 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Byt lösenord</Text>
+    <View style={[styles.container, { backgroundColor: theme.COLORS.background }]}>
+      <Text style={[styles.title, { color: theme.COLORS.text }]}>
+        Byt lösenord
+      </Text>
 
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.COLORS.card,
+            color: theme.COLORS.text,
+            borderColor: theme.COLORS.border,
+          },
+        ]}
         placeholder="Nuvarande lösenord"
+        placeholderTextColor={theme.COLORS.gray}
         secureTextEntry
         value={currentPass}
         onChangeText={setCurrentPass}
       />
 
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.COLORS.card,
+            color: theme.COLORS.text,
+            borderColor: theme.COLORS.border,
+          },
+        ]}
         placeholder="Nytt lösenord"
+        placeholderTextColor={theme.COLORS.gray}
         secureTextEntry
         value={newPass}
         onChangeText={setNewPass}
       />
 
       <TextInput
-        style={styles.input}
+        style={[
+          styles.input,
+          {
+            backgroundColor: theme.COLORS.card,
+            color: theme.COLORS.text,
+            borderColor: theme.COLORS.border,
+          },
+        ]}
         placeholder="Bekräfta nytt lösenord"
+        placeholderTextColor={theme.COLORS.gray}
         secureTextEntry
         value={confirmPass}
         onChangeText={setConfirmPass}
       />
 
-      <TouchableOpacity style={BUTTON.primary} onPress={handleChangePassword} disabled={loading}>
+      <TouchableOpacity
+        style={[styles.buttonPrimary, { backgroundColor: theme.COLORS.primary }]}
+        onPress={handleChangePassword}
+        disabled={loading}
+      >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={BUTTON.primaryText}>Uppdatera</Text>
+          <Text style={styles.buttonPrimaryText}>Uppdatera</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -100,16 +141,34 @@ export default function ChangePasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: SPACING.l, backgroundColor: COLORS.background },
-  title: { ...FONT.title, color: COLORS.secondary, marginBottom: SPACING.l, textAlign: "center" },
+  container: { flex: 1, padding: 24 },
+  
+  title: {
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 24,
+    textAlign: "center",
+  },
+
   input: {
-    backgroundColor: COLORS.white,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     borderWidth: 1,
-    borderColor: COLORS.gray,
     fontSize: 16,
-    marginBottom: SPACING.m,
+    marginBottom: 16,
+  },
+
+  buttonPrimary: {
+    paddingVertical: 14,
+    borderRadius: 30,
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  buttonPrimaryText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 18,
   },
 });

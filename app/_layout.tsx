@@ -1,41 +1,40 @@
+import { useURL } from "expo-linking";
 import { Stack } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native";
-import { useURL } from "expo-linking";
-import { COLORS } from "../constants/theme";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "../constants/theme";
 
 export default function RootLayout() {
+  const theme = useTheme();
+
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const [initialRoute, setInitialRoute] = useState("login");
   const [sessionChecked, setSessionChecked] = useState(false);
   const [lockedDeepLink, setLockedDeepLink] = useState(false);
   const url = useURL();
 
-  // ✅ Deep link detection
+  // Deep link detect
   useEffect(() => {
     if (!url || lockedDeepLink) return;
 
-    if (!url.includes("expo-development-client") &&
-        url.startsWith("rapportskollenapp://nfc")) 
-    {
-      console.log("📡 NFC deep link → start in nfc-check");
+    if (
+      !url.includes("expo-development-client") &&
+      url.startsWith("rapportskollenapp://nfc")
+    ) {
       setInitialRoute("nfc-check");
       setLockedDeepLink(true);
       return;
     }
-
-    console.log("🚀 Normal app start");
   }, [url, lockedDeepLink]);
 
-  // ✅ Restore session & manual
+  // Restore session
   useEffect(() => {
     const checkSession = async () => {
       const sessionId = await SecureStore.getItemAsync("phpSessionId");
 
       if (!sessionId) {
-        console.log("⚠️ No stored session");
         setIsLoggedIn(false);
         setSessionChecked(true);
         return;
@@ -51,24 +50,19 @@ export default function RootLayout() {
 
         const text = await res.text();
         const data = JSON.parse(text);
-        console.log("📥 Session check response:", data);
 
         if (data.success) {
           if (data.manual !== undefined) {
             await SecureStore.setItemAsync("userManual", String(data.manual));
-            console.log("✅ Updated manual from server:", data.manual);
           }
           setIsLoggedIn(true);
         } else {
-          console.log("❌ Invalid session — wiping values");
-          
-          const keys = ["phpSessionId","userManual","userID","userName","checkedAddress"];
+          const keys = ["phpSessionId", "userManual", "userID", "userName", "checkedAddress"];
           for (const key of keys) await SecureStore.deleteItemAsync(key);
 
           setIsLoggedIn(false);
         }
-      } catch (err) {
-        console.log("🚨 Session check error:", err);
+      } catch {
         await SecureStore.deleteItemAsync("userManual");
         setIsLoggedIn(false);
       }
@@ -79,12 +73,19 @@ export default function RootLayout() {
     if (!sessionChecked && initialRoute !== "nfc-check") checkSession();
   }, [initialRoute, sessionChecked]);
 
-  // ✅ Splash screen
+  // Splash screen
   if (!sessionChecked && initialRoute !== "nfc-check") {
     return (
       <SafeAreaProvider>
-        <SafeAreaView style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
+        <SafeAreaView
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: theme.COLORS.background,
+          }}
+        >
+          <ActivityIndicator size="large" color={theme.COLORS.primary} />
         </SafeAreaView>
       </SafeAreaProvider>
     );
@@ -99,16 +100,20 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <Stack initialRouteName={startPage}>
-          
-          {/* ❌ Hide header ONLY on login */}
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.COLORS.background }}>
+        <Stack
+          screenOptions={{
+            headerStyle: {
+              backgroundColor: theme.COLORS.background,
+            },
+            headerTintColor: theme.COLORS.text,
+          }}
+          initialRouteName={startPage}
+        >
           <Stack.Screen name="login" options={{ headerShown: false }} />
 
-          {/* ❌ Hide header ONLY on tab home */}
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
-          {/* ✅ NFC screen keeps header & back button */}
           <Stack.Screen
             name="nfc-check"
             options={{
@@ -116,7 +121,6 @@ export default function RootLayout() {
               title: "📡 NFC Kontroll",
             }}
           />
-
         </Stack>
       </SafeAreaView>
     </SafeAreaProvider>

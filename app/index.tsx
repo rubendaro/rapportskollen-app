@@ -1,16 +1,16 @@
 import { Redirect, Stack } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
-import { COLORS } from "../constants/theme";
+import { ActivityIndicator, Text, View } from "react-native";
+import { useTheme } from "../constants/theme";
 
 export default function RootLayout() {
+  const theme = useTheme();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkSession = async () => {
       const sessionId = await SecureStore.getItemAsync("phpSessionId");
-      console.log("📤 Stored session ID at startup:", sessionId);
 
       if (!sessionId) {
         setIsLoggedIn(false);
@@ -30,12 +30,10 @@ export default function RootLayout() {
         );
 
         const text = await res.text();
-        console.log("📥 Session check raw response:", text);
-
         const data = JSON.parse(text);
+
         setIsLoggedIn(data.success === true);
-      } catch (err) {
-        console.log("❌ Session check error:", err);
+      } catch {
         setIsLoggedIn(false);
       }
     };
@@ -43,10 +41,21 @@ export default function RootLayout() {
     checkSession();
   }, []);
 
+  // splash
   if (isLoggedIn === null) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" color={COLORS.primary} />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: theme.COLORS.background,
+        }}
+      >
+        <ActivityIndicator size="large" color={theme.COLORS.primary} />
+        <Text style={{ color: theme.COLORS.text, marginTop: 8 }}>
+          Kontrollerar session…
+        </Text>
       </View>
     );
   }
@@ -57,11 +66,11 @@ export default function RootLayout() {
 
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: COLORS.white },
-          headerTintColor: COLORS.secondary,
+          headerStyle: { backgroundColor: theme.COLORS.card },
+          headerTintColor: theme.COLORS.primary,
           headerTitleStyle: {
             fontWeight: "700",
-            color: COLORS.secondary,
+            color: theme.COLORS.text,
             fontSize: 20,
           },
           headerTitleAlign: "center",
