@@ -17,10 +17,7 @@
   },
   "submit": {
     "production": {
-      "ios": {
-        "useFastlane": false
-      }
+      "useFastlane": false
     }
   }
 }
-
