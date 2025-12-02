@@ -15,6 +15,15 @@ import * as SecureStore from "expo-secure-store";
 
 import { useTheme } from "../../constants/theme";
 
+// -------------------------
+// TYPE FOR CARD
+// -------------------------
+type CardProps = {
+  icon: keyof typeof MaterialIcons.glyphMap;
+  label: string;
+  onPress: () => void;
+};
+
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useTheme();
@@ -24,6 +33,9 @@ export default function HomeScreen() {
   const [manual, setManual] = useState<string | null>(null);
   const [companyLogo, setCompanyLogo] = useState<string | null>(null);
 
+  // -------------------------
+  // Validate Session
+  // -------------------------
   const validateSession = async () => {
     const sessionId = await SecureStore.getItemAsync("phpSessionId");
     if (!sessionId) return false;
@@ -51,6 +63,9 @@ export default function HomeScreen() {
     }
   };
 
+  // -------------------------
+  // INITIAL LOAD
+  // -------------------------
   useEffect(() => {
     const init = async () => {
       const valid = await validateSession();
@@ -59,15 +74,20 @@ export default function HomeScreen() {
       const name = await SecureStore.getItemAsync("userName");
       const manualValue = await SecureStore.getItemAsync("userManual");
       const logo = await SecureStore.getItemAsync("companyLogo");
+      const address = await SecureStore.getItemAsync("checkedAddress");
 
       setUserName(name);
       setManual(manualValue);
       if (logo) setCompanyLogo(logo);
+      if (address) setCheckedAddress(address);
     };
 
     init();
   }, []);
 
+  // -------------------------
+  // REFRESH WHEN SCREEN FOCUSES
+  // -------------------------
   useFocusEffect(
     React.useCallback(() => {
       const refresh = async () => {
@@ -82,6 +102,9 @@ export default function HomeScreen() {
     }, [])
   );
 
+  // -------------------------
+  // LOGOUT
+  // -------------------------
   const handleLogout = async () => {
     Alert.alert("Logga ut", "Är du säker?", [
       { text: "Avbryt", style: "cancel" },
@@ -102,6 +125,9 @@ export default function HomeScreen() {
     ]);
   };
 
+  // -------------------------
+  // DYNAMIC BUTTON BASED ON "manual" VALUE
+  // -------------------------
   const renderManualButton = () => {
     switch (manual) {
       case "0":
@@ -130,25 +156,20 @@ export default function HomeScreen() {
         );
       case "3":
         return (
-          <Card
-            icon="nfc"
-            label="NFC Check"
-            onPress={() => router.push("/nfc-check")}
-          />
+          <Card icon="nfc" label="NFC Check" onPress={() => router.push("/nfc-check")} />
         );
       case "4":
         return (
-          <Card
-            icon="qr-code"
-            label="QR Check"
-            onPress={() => router.push("/qr-scan")}
-          />
+          <Card icon="qr-code" label="QR Check" onPress={() => router.push("/qr-scan")} />
         );
       default:
         return null;
     }
   };
 
+  // -------------------------
+  // RENDER UI
+  // -------------------------
   return (
     <ScrollView
       contentContainerStyle={[
@@ -167,10 +188,7 @@ export default function HomeScreen() {
           {companyLogo ? (
             <Image source={{ uri: companyLogo }} style={styles.companyLogo} />
           ) : (
-            <Image
-              source={require("../../assets/images/logo.png")}
-              style={styles.companyLogo}
-            />
+            <Image source={require("../../assets/images/logo.png")} style={styles.companyLogo} />
           )}
         </View>
 
@@ -179,91 +197,56 @@ export default function HomeScreen() {
         </Text>
 
         {checkedAddress && (
-          <View
-            style={[
-              styles.checkedBox,
-              { backgroundColor: theme.COLORS.primary },
-            ]}
-          >
+          <View style={[styles.checkedBox, { backgroundColor: theme.COLORS.primary }]}>
             <MaterialIcons name="check-circle" size={20} color="#fff" />
             <Text style={styles.checkedText}>
-              Incheckad på{" "}
-              <Text style={{ fontWeight: "700" }}>{checkedAddress}</Text>
+              Incheckad på <Text style={{ fontWeight: "700" }}>{checkedAddress}</Text>
             </Text>
           </View>
         )}
       </View>
 
-      {/* GRID */}
+      {/* GRID BUTTONS */}
       <View style={styles.grid}>
-        <Card
-          icon="history"
-          label="Historik"
-          onPress={() => router.push("/old-hours-screen")}
-        />
-
-        <Card
-          icon="access-time"
-          label="Tidrapport"
-          onPress={() => router.push("/reported-hours-screen")}
-        />
-
+        <Card icon="history" label="Historik" onPress={() => router.push("/old-hours-screen")} />
+        <Card icon="access-time" label="Tidrapport" onPress={() => router.push("/reported-hours-screen")} />
         <Card icon="place" label="Plats" onPress={() => router.push("/plats")} />
-
         {renderManualButton()}
       </View>
 
       {/* MENU */}
-      <View
-        style={[
-          styles.menuContainer,
-          { backgroundColor: theme.COLORS.card },
-        ]}
-      >
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => router.push("/profile")}
-        >
+      <View style={[styles.menuContainer, { backgroundColor: theme.COLORS.card }]}>
+        <TouchableOpacity style={styles.menuItem} onPress={() => router.push("/profile")}>
           <MaterialIcons name="person" size={24} color={theme.COLORS.primary} />
-          <Text style={[styles.menuText, { color: theme.COLORS.text }]}>
-            Profil
-          </Text>
+          <Text style={[styles.menuText, { color: theme.COLORS.text }]}>Profil</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
           <MaterialIcons name="logout" size={24} color={theme.COLORS.error} />
-          <Text style={[styles.menuText, { color: theme.COLORS.error }]}>
-            Logga ut
-          </Text>
+          <Text style={[styles.menuText, { color: theme.COLORS.error }]}>Logga ut</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
 
-type CardProps = {
-  icon: keyof typeof MaterialIcons.glyphMap;
-  label: string;
-  onPress: () => void;
-};
-
+// -------------------------
+// CARD COMPONENT
+// -------------------------
 function Card({ icon, label, onPress }: CardProps) {
   const theme = useTheme();
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.card,
-        { backgroundColor: theme.COLORS.primary },
-      ]}
-      onPress={onPress}
-    >
+    <TouchableOpacity style={[styles.card, { backgroundColor: theme.COLORS.primary }]} onPress={onPress}>
       <MaterialIcons name={icon} size={34} color="#fff" />
       <Text style={styles.cardLabel}>{label}</Text>
     </TouchableOpacity>
   );
 }
 
+// -------------------------
+// STYLES
+// -------------------------
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
@@ -271,13 +254,11 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
     alignItems: "center",
   },
-
   headerBox: {
     width: "100%",
     alignItems: "center",
     marginBottom: 30,
   },
-
   logoWrapper: {
     width: 120,
     height: 120,
@@ -290,19 +271,16 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
-
   companyLogo: {
     width: "60%",
     height: "60%",
     resizeMode: "contain",
   },
-
   welcomeText: {
     fontSize: 28,
     fontWeight: "700",
     marginTop: 12,
   },
-
   checkedBox: {
     marginTop: 12,
     paddingHorizontal: 16,
@@ -312,12 +290,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
-
   checkedText: {
     color: "#fff",
     fontSize: 14,
   },
-
   grid: {
     width: "90%",
     flexDirection: "row",
@@ -325,7 +301,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 40,
   },
-
   card: {
     width: "47%",
     aspectRatio: 1,
@@ -334,21 +309,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
-
   cardLabel: {
     color: "#fff",
     marginTop: 10,
     fontSize: 16,
     fontWeight: "600",
   },
-
   menuContainer: {
     width: "90%",
     borderRadius: 20,
     paddingVertical: 10,
     paddingHorizontal: 16,
   },
-
   menuItem: {
     paddingVertical: 14,
     flexDirection: "row",
@@ -357,7 +329,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#3b3b3b22",
   },
-
   menuText: {
     fontSize: 18,
     fontWeight: "500",

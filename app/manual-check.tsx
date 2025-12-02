@@ -147,13 +147,17 @@ export default function ManualCheckScreen() {
       const json = JSON.parse(text);
 
       if (json.success) {
-        const name =
-          addresses.find(a => a.PRID === selectedAddress)?.Address ?? "";
+        // ⭐ SAVE address on check-in
+        if (checkStatus !== 1) {
+          const name =
+            addresses.find(a => a.PRID == selectedAddress)?.Address || "";
+          if (name) await SecureStore.setItemAsync("checkedAddress", name);
+        }
 
-        if (checkStatus === 1)
+        // ⭐ CLEAR address on check-out
+        if (checkStatus === 1) {
           await SecureStore.deleteItemAsync("checkedAddress");
-        else
-          await SecureStore.setItemAsync("checkedAddress", name);
+        }
 
         Alert.alert("Klar", json.message);
         router.replace("/(tabs)");

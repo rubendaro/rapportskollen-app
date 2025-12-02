@@ -27,8 +27,6 @@ export default function QrCheck() {
   const [checkStatus, setCheckStatus] = useState<number | null>(null);
   const [chid, setChid] = useState<number | null>(null);
 
-  const [currentAddress, setCurrentAddress] = useState("");
-
   useEffect(() => {
     const init = async () => {
       const session = await checkSession();
@@ -78,7 +76,7 @@ export default function QrCheck() {
       setFormData(data);
       setCheckStatus(Number(data.Checkstatus ?? 0));
       setChid(Number(data.CHID ?? 0));
-      setCurrentAddress(data.addresses[0]?.Address ?? "");
+
     } catch {
       Alert.alert("Fel", "Misslyckades");
     } finally {
@@ -123,10 +121,13 @@ export default function QrCheck() {
     const json = JSON.parse(text.trim());
 
     if (json.success) {
+      // ⭐ Find the chosen address
+      const chosen = formData.addresses?.find((a: any) => a.PRID == selectedAddress);
+
       if (checkStatus === 1) {
         await SecureStore.deleteItemAsync("checkedAddress");
-      } else {
-        await SecureStore.setItemAsync("checkedAddress", currentAddress);
+      } else if (chosen) {
+        await SecureStore.setItemAsync("checkedAddress", chosen.Address);
       }
 
       router.replace("/(tabs)");

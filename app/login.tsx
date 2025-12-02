@@ -30,6 +30,7 @@ export default function LoginScreen() {
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
 
+  // Load saved login data
   useEffect(() => {
     const loadSavedLogin = async () => {
       const savedEmail = await SecureStore.getItemAsync("savedEmail");
@@ -41,6 +42,7 @@ export default function LoginScreen() {
     loadSavedLogin();
   }, []);
 
+  // LOGIN HANDLER
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Fel", "Fyll i både e-post och lösenord.");
@@ -68,26 +70,37 @@ export default function LoginScreen() {
         return;
       }
 
+      // 🔐 Save session
       await SecureStore.setItemAsync("phpSessionId", String(data.session_id ?? ""));
       await SecureStore.setItemAsync("userID", String(data.user_id ?? ""));
       await SecureStore.setItemAsync("userName", String(data.name ?? ""));
 
+      // 🔐 Save manual mode
       await SecureStore.deleteItemAsync("userManual");
       if (data.manual != null) {
         await SecureStore.setItemAsync("userManual", String(data.manual));
       }
 
+      // 🔐 Save address if present
+      if (data.address) {
+        await SecureStore.setItemAsync("checkedAddress", data.address);
+      } else {
+        await SecureStore.deleteItemAsync("checkedAddress");
+      }
+
+      // Save email/password locally
       await SecureStore.setItemAsync("savedEmail", email);
       await SecureStore.setItemAsync("savedPassword", password);
 
       router.replace("/");
-    } catch {
-      Alert.alert("Fel", "Serverfel.");
+    } catch (e) {
+      Alert.alert("Fel", "Kunde inte ansluta till servern.");
     } finally {
       setLoading(false);
     }
   };
 
+  // FORGOT PASSWORD HANDLER
   const handleForgotPassword = async () => {
     if (!forgotEmail) {
       Alert.alert("Fel", "Du måste ange e-post.");
@@ -133,6 +146,7 @@ export default function LoginScreen() {
         <ActivityIndicator size="large" color={theme.COLORS.primary} />
       ) : (
         <>
+          {/* LOGO */}
           <View style={styles.logoContainer}>
             <Image source={logo} style={styles.logo} />
             <Text style={[styles.tagline, { color: theme.COLORS.primary }]}>
@@ -143,6 +157,7 @@ export default function LoginScreen() {
             </Text>
           </View>
 
+          {/* TITLE */}
           <Text
             style={{
               fontSize: 28,
@@ -154,6 +169,7 @@ export default function LoginScreen() {
             Logga in
           </Text>
 
+          {/* EMAIL */}
           <TextInput
             style={[
               styles.input,
@@ -170,6 +186,7 @@ export default function LoginScreen() {
             autoCapitalize="none"
           />
 
+          {/* PASSWORD */}
           <View
             style={[
               styles.passwordContainer,
@@ -202,6 +219,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          {/* LOGIN BUTTON */}
           <TouchableOpacity
             style={[
               styles.button,
@@ -212,18 +230,20 @@ export default function LoginScreen() {
             <Text style={styles.buttonText}>Logga in</Text>
           </TouchableOpacity>
 
+          {/* FORGOT PASSWORD */}
           <TouchableOpacity onPress={() => setForgotModalVisible(true)}>
-            <Text style={[styles.forgotPasswordText, { color: theme.COLORS.textSecondary }]}>
+            <Text
+              style={[
+                styles.forgotPasswordText,
+                { color: theme.COLORS.textSecondary },
+              ]}
+            >
               Glömt lösenord?
             </Text>
           </TouchableOpacity>
 
-          {/* Modal */}
-          <Modal
-            visible={forgotModalVisible}
-            transparent
-            animationType="slide"
-          >
+          {/* MODAL */}
+          <Modal visible={forgotModalVisible} transparent animationType="slide">
             <View style={styles.modalOverlay}>
               <View
                 style={[
@@ -231,7 +251,12 @@ export default function LoginScreen() {
                   { backgroundColor: theme.COLORS.card },
                 ]}
               >
-                <Text style={[styles.modalTitle, { color: theme.COLORS.text }]}>
+                <Text
+                  style={[
+                    styles.modalTitle,
+                    { color: theme.COLORS.text },
+                  ]}
+                >
                   Återställ lösenord
                 </Text>
 
@@ -373,3 +398,4 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 });
+

@@ -166,6 +166,20 @@ export default function GPSCheckScreen() {
       const json = JSON.parse(text);
 
       if (json.success) {
+        // ⭐ SAVE ADDRESS ON CHECK-IN
+        if (checkStatus !== 1) {
+          const addressName =
+            addresses.find((a) => a.PRID == selectedAddress)?.Address || "";
+          if (addressName) {
+            await SecureStore.setItemAsync("checkedAddress", addressName);
+          }
+        }
+
+        // ⭐ CLEAR ADDRESS ON CHECK-OUT
+        if (checkStatus === 1) {
+          await SecureStore.deleteItemAsync("checkedAddress");
+        }
+
         Alert.alert("OK", json.message);
         router.replace("/(tabs)");
       } else {
@@ -265,30 +279,15 @@ export default function GPSCheckScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
 
-  header: {
-    fontSize: 22,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
+  header: { fontSize: 22, fontWeight: "700", marginBottom: 10 },
 
-  address: {
-    marginBottom: 15,
-  },
+  address: { marginBottom: 15 },
 
-  warningText: {
-    fontWeight: "600",
-    marginBottom: 12,
-  },
+  warningText: { fontWeight: "600", marginBottom: 12 },
 
-  picker: {
-    marginVertical: 10,
-    borderRadius: 8,
-  },
+  picker: { marginVertical: 10, borderRadius: 8 },
 
-  label: {
-    fontWeight: "600",
-    marginTop: 10,
-  },
+  label: { fontWeight: "600", marginTop: 10 },
 
   button: {
     padding: 15,
@@ -297,8 +296,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 
-  buttonText: {
-    color: "#fff",
-    fontWeight: "700",
-  },
+  buttonText: { color: "#fff", fontWeight: "700" },
 });

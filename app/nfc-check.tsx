@@ -10,7 +10,7 @@ import {
   Text,
   TouchableOpacity
 } from "react-native";
-import NfcManager, { Ndef, NfcTech } from "react-native-nfc-manager";
+import NfcManager, { NfcTech } from "react-native-nfc-manager";
 import { useTheme } from "../constants/theme";
 import { checkSession } from "../utils/checkSession";
 
@@ -23,7 +23,6 @@ export default function NfcCheck() {
   const [token, setToken] = useState<string | null>(null);
 
   const [selectedAddress, setSelectedAddress] = useState("");
-  const [selectedAddressLabel, setSelectedAddressLabel] = useState("");
   const [selectedService, setSelectedService] = useState("");
 
   const [checkStatus, setCheckStatus] = useState<number | null>(null);
@@ -51,19 +50,6 @@ export default function NfcCheck() {
     NfcManager.start();
   }, []);
 
-  const decodeNdefPayload = (record: any): string => {
-    try {
-      if (record.tnf === Ndef.TNF_WELL_KNOWN) {
-        if (Ndef.isType(record, Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) {
-          return Ndef.text.decodePayload(record.payload).trim();
-        }
-      }
-      return new TextDecoder().decode(record.payload).trim();
-    } catch {
-      return "";
-    }
-  };
-
   const readNfc = async () => {
     try {
       setLoading(true);
@@ -71,19 +57,16 @@ export default function NfcCheck() {
       setSelectedService("");
       setFormData(null);
 
-      await NfcManager.requestTechnology(NfcTech.Ndef);
+      await NfcManager.requestTechnology(NfcTech.NfcA);
+
       const tag = await NfcManager.getTag();
 
-      let decoded = "";
-      for (const rec of tag?.ndefMessage ?? [])
-        decoded += decodeNdefPayload(rec);
-
-      const clean = decoded.trim().replace(/\s+/g, "");
-
-      if (!clean) {
+      if (!tag?.id) {
         Alert.alert("Ingen token hittades");
         return;
       }
+
+      const clean = tag.id.replace(/\s+/g, "");
 
       const body =
         `session_id=${encodeURIComponent(sessionId ?? "")}` +
@@ -106,7 +89,7 @@ export default function NfcCheck() {
       setCheckStatus(Number(json.Checkstatus ?? 0));
       setChid(Number(json.CHID ?? 0));
 
-    } catch {
+    } catch (e) {
       Alert.alert("Fel vid NFC");
     } finally {
       NfcManager.cancelTechnologyRequest();
@@ -143,10 +126,25 @@ export default function NfcCheck() {
 
     if (!json.success) return Alert.alert("Fel", json.message);
 
+    // ⭐ SAVE ADDRESS AFTER CHECK-IN
+    if (checkStatus !== 1) {
+      const selectedAddressName =
+        formData.addresses.find((a: any) => a.PRID == selectedAddress)?.Address || "";
+
+      if (selectedAddressName) {
+        await SecureStore.setItemAsync("checkedAddress", selectedAddressName);
+      }
+    }
+
+    // ⭐ CLEAR ADDRESS AFTER CHECK-OUT
+    if (checkStatus === 1) {
+      await SecureStore.deleteItemAsync("checkedAddress");
+    }
+
     router.replace("/(tabs)");
   };
 
-  const isCheckIn = checkStatus === 1 ? false : true;
+  const isCheckIn = checkStatus !== 1;
 
   return (
     <ScrollView
@@ -171,10 +169,6 @@ export default function NfcCheck() {
 
       {formData && (
         <>
-          <Text style={[styles.sectionTitle, { color: theme.COLORS.text }]}>
-            Välj adress
-          </Text>
-
           <Picker
             selectedValue={selectedAddress}
             onValueChange={setSelectedAddress}
@@ -187,22 +181,16 @@ export default function NfcCheck() {
           </Picker>
 
           {isCheckIn && (
-            <>
-              <Text style={[styles.sectionTitle, { color: theme.COLORS.text }]}>
-                Välj tjänst
-              </Text>
-
-              <Picker
-                selectedValue={selectedService}
-                onValueChange={setSelectedService}
-                style={[styles.picker, { backgroundColor: theme.COLORS.card }]}
-              >
-                <Picker.Item label="Välj tjänst..." value="" />
-                {formData.services.map((s:any) => (
-                  <Picker.Item key={s.RSPID} label={s.Service} value={s.RSPID} />
-                ))}
-              </Picker>
-            </>
+            <Picker
+              selectedValue={selectedService}
+              onValueChange={setSelectedService}
+              style={[styles.picker, { backgroundColor: theme.COLORS.card }]}
+            >
+              <Picker.Item label="Välj tjänst..." value="" />
+              {formData.services.map((s:any) => (
+                <Picker.Item key={s.RSPID} label={s.Service} value={s.RSPID} />
+              ))}
+            </Picker>
           )}
 
           <TouchableOpacity
@@ -229,6 +217,5 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   buttonText: { color: "#fff", fontSize: 18, fontWeight: "700" },
-  sectionTitle: { fontSize: 18, marginTop: 20, marginBottom: 10 },
-  picker: { borderRadius: 8 },
+  picker: { borderRadius: 8, marginBottom: 20 },
 });
