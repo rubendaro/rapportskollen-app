@@ -1,0 +1,6 @@
+module Pods_Rapportskollen {
+  umbrella header "Pods-Rapportskollen-umbrella.h"
+
+  export *
+  module * { export * }
+}
