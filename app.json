@@ -17,7 +17,13 @@
       "bundleIdentifier": "com.anonymous.rapportskollenapp",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NFCReaderUsageDescription": "Appen använder NFC för att läsa arbetstaggar."
+        "NFCReaderUsageDescription": "Appen använder NFC för att läsa arbetstaggar.",
+
+        /* ⭐️ Added App Clip section below */
+        "NSAppClip": {
+          "NSAppClipRequestEphemeralUserNotification": false,
+          "NSAppClipRequestLocationConfirmation": false
+        }
       }
     },
 
