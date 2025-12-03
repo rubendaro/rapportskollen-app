@@ -12,7 +12,13 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "cache": {
+        "disabled": true
+      },
+      "ios": {
+        "cocoapodsVersion": "1.15.2"
+      }
     }
   },
   "submit": {
