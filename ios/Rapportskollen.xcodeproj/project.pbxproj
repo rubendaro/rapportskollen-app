@@ -7,34 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04E46E4C7E8737521C862037 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D813866B7E59D3B0D24088B5 /* ExpoModulesProvider.swift */; };
+		0CEEB27780D0B796DD807622 /* libPods-Rapportskollen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F23BC3E9D5CFB4AF350C38B /* libPods-Rapportskollen.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4008D3BEF91595D2D2AD55F4 /* libPods-Rapportskollen.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 878B272DC58B8C73CAAFD171 /* libPods-Rapportskollen.a */; };
-		87DCF79E2EDEE960004D43B3 /* RapportskollenClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = 87DCF7922EDEE95C004D43B3 /* RapportskollenClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A0ED877561B55B10B491F40F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 31BEF74082F0E80238DEC6A6 /* PrivacyInfo.xcprivacy */; };
+		87DCF7CF2EE013A8004D43B3 /* RapportskollenClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = 87DCF7C32EE013A5004D43B3 /* RapportskollenClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		DDE838946397077759867D22 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505DC8E54990DCA355893033 /* ExpoModulesProvider.swift */; };
+		BE85B6E7D13F73B2BF17C1E4 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FC2AA35EFBB261A732C12B3E /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		87DCF79C2EDEE960004D43B3 /* PBXContainerItemProxy */ = {
+		87DCF7CD2EE013A8004D43B3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 87DCF7912EDEE95C004D43B3;
+			remoteGlobalIDString = 87DCF7C22EE013A5004D43B3;
 			remoteInfo = RapportskollenClip;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		87DCF7A32EDEE961004D43B3 /* Embed App Clips */ = {
+		87DCF7D02EE013A8004D43B3 /* Embed App Clips */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
 			dstSubfolderSpec = 16;
 			files = (
-				87DCF79E2EDEE960004D43B3 /* RapportskollenClip.app in Embed App Clips */,
+				87DCF7CF2EE013A8004D43B3 /* RapportskollenClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -42,34 +42,34 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0F23BC3E9D5CFB4AF350C38B /* libPods-Rapportskollen.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Rapportskollen.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07F961A680F5B00A75B9A /* Rapportskollen.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rapportskollen.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Rapportskollen/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Rapportskollen/Info.plist; sourceTree = "<group>"; };
-		31BEF74082F0E80238DEC6A6 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Rapportskollen/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		505DC8E54990DCA355893033 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Rapportskollen/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		7473F6994DA5BEA4514A43CE /* Pods-Rapportskollen.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rapportskollen.debug.xcconfig"; path = "Target Support Files/Pods-Rapportskollen/Pods-Rapportskollen.debug.xcconfig"; sourceTree = "<group>"; };
-		878B272DC58B8C73CAAFD171 /* libPods-Rapportskollen.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Rapportskollen.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		87DCF7922EDEE95C004D43B3 /* RapportskollenClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RapportskollenClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		849B41EB1962394DFD95B691 /* Pods-Rapportskollen.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rapportskollen.release.xcconfig"; path = "Target Support Files/Pods-Rapportskollen/Pods-Rapportskollen.release.xcconfig"; sourceTree = "<group>"; };
+		87DCF7C32EE013A5004D43B3 /* RapportskollenClip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RapportskollenClip.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Rapportskollen/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D8623CB02C7E5F2DA74DEF2A /* Pods-Rapportskollen.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rapportskollen.release.xcconfig"; path = "Target Support Files/Pods-Rapportskollen/Pods-Rapportskollen.release.xcconfig"; sourceTree = "<group>"; };
+		D813866B7E59D3B0D24088B5 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Rapportskollen/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F0DDB73F3D18066226FE579A /* Pods-Rapportskollen.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rapportskollen.debug.xcconfig"; path = "Target Support Files/Pods-Rapportskollen/Pods-Rapportskollen.debug.xcconfig"; sourceTree = "<group>"; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Rapportskollen/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* Rapportskollen-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Rapportskollen-Bridging-Header.h"; path = "Rapportskollen/Rapportskollen-Bridging-Header.h"; sourceTree = "<group>"; };
+		FC2AA35EFBB261A732C12B3E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Rapportskollen/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		87DCF79F2EDEE961004D43B3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+		87DCF7D32EE013A8004D43B3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 87DCF7912EDEE95C004D43B3 /* RapportskollenClip */;
+			target = 87DCF7C22EE013A5004D43B3 /* RapportskollenClip */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		87DCF7932EDEE95D004D43B3 /* RapportskollenClip */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (87DCF79F2EDEE961004D43B3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = RapportskollenClip; sourceTree = "<group>"; };
+		87DCF7C42EE013A5004D43B3 /* RapportskollenClip */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (87DCF7D32EE013A8004D43B3 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = RapportskollenClip; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,11 +77,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4008D3BEF91595D2D2AD55F4 /* libPods-Rapportskollen.a in Frameworks */,
+				0CEEB27780D0B796DD807622 /* libPods-Rapportskollen.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87DCF78F2EDEE95C004D43B3 /* Frameworks */ = {
+		87DCF7C02EE013A5004D43B3 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -100,7 +100,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				31BEF74082F0E80238DEC6A6 /* PrivacyInfo.xcprivacy */,
+				FC2AA35EFBB261A732C12B3E /* PrivacyInfo.xcprivacy */,
 			);
 			name = Rapportskollen;
 			sourceTree = "<group>";
@@ -109,26 +109,17 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				878B272DC58B8C73CAAFD171 /* libPods-Rapportskollen.a */,
+				0F23BC3E9D5CFB4AF350C38B /* libPods-Rapportskollen.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5BB62B83CB1970B219108B36 /* Rapportskollen */ = {
+		65FF391F87AA35C50EDC451B /* ExpoModulesProviders */ = {
 			isa = PBXGroup;
 			children = (
-				505DC8E54990DCA355893033 /* ExpoModulesProvider.swift */,
+				C139D1358F25243304690A65 /* Rapportskollen */,
 			);
-			name = Rapportskollen;
-			sourceTree = "<group>";
-		};
-		70E88037FC1DCE8646572958 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				7473F6994DA5BEA4514A43CE /* Pods-Rapportskollen.debug.xcconfig */,
-				D8623CB02C7E5F2DA74DEF2A /* Pods-Rapportskollen.release.xcconfig */,
-			);
-			path = Pods;
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -143,11 +134,11 @@
 			children = (
 				13B07FAE1A68108700A75B9A /* Rapportskollen */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
-				87DCF7932EDEE95D004D43B3 /* RapportskollenClip */,
+				87DCF7C42EE013A5004D43B3 /* RapportskollenClip */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				70E88037FC1DCE8646572958 /* Pods */,
-				B94A495E6A3EBE7E971E6004 /* ExpoModulesProviders */,
+				D465E7E258E8FD920A5DCBB3 /* Pods */,
+				65FF391F87AA35C50EDC451B /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -158,17 +149,9 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* Rapportskollen.app */,
-				87DCF7922EDEE95C004D43B3 /* RapportskollenClip.app */,
+				87DCF7C32EE013A5004D43B3 /* RapportskollenClip.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		B94A495E6A3EBE7E971E6004 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				5BB62B83CB1970B219108B36 /* Rapportskollen */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -180,6 +163,23 @@
 			path = Rapportskollen/Supporting;
 			sourceTree = "<group>";
 		};
+		C139D1358F25243304690A65 /* Rapportskollen */ = {
+			isa = PBXGroup;
+			children = (
+				D813866B7E59D3B0D24088B5 /* ExpoModulesProvider.swift */,
+			);
+			name = Rapportskollen;
+			sourceTree = "<group>";
+		};
+		D465E7E258E8FD920A5DCBB3 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				F0DDB73F3D18066226FE579A /* Pods-Rapportskollen.debug.xcconfig */,
+				849B41EB1962394DFD95B691 /* Pods-Rapportskollen.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -188,45 +188,45 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Rapportskollen" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				792116F9EBF7AFE4FD1E2A1B /* [Expo] Configure project */,
+				A490E952E5AC750534AD0DAA /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				5A152B2407B75998BC59AD7A /* [CP] Embed Pods Frameworks */,
-				87DCF7A32EDEE961004D43B3 /* Embed App Clips */,
+				6506D6E8BB81DAE170C6574F /* [CP] Embed Pods Frameworks */,
+				87DCF7D02EE013A8004D43B3 /* Embed App Clips */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				87DCF79D2EDEE960004D43B3 /* PBXTargetDependency */,
+				87DCF7CE2EE013A8004D43B3 /* PBXTargetDependency */,
 			);
 			name = Rapportskollen;
 			productName = Rapportskollen;
 			productReference = 13B07F961A680F5B00A75B9A /* Rapportskollen.app */;
 			productType = "com.apple.product-type.application";
 		};
-		87DCF7912EDEE95C004D43B3 /* RapportskollenClip */ = {
+		87DCF7C22EE013A5004D43B3 /* RapportskollenClip */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 87DCF7A02EDEE961004D43B3 /* Build configuration list for PBXNativeTarget "RapportskollenClip" */;
+			buildConfigurationList = 87DCF7D42EE013A8004D43B3 /* Build configuration list for PBXNativeTarget "RapportskollenClip" */;
 			buildPhases = (
-				87DCF78E2EDEE95C004D43B3 /* Sources */,
-				87DCF78F2EDEE95C004D43B3 /* Frameworks */,
-				87DCF7902EDEE95C004D43B3 /* Resources */,
+				87DCF7BF2EE013A5004D43B3 /* Sources */,
+				87DCF7C02EE013A5004D43B3 /* Frameworks */,
+				87DCF7C12EE013A5004D43B3 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				87DCF7932EDEE95D004D43B3 /* RapportskollenClip */,
+				87DCF7C42EE013A5004D43B3 /* RapportskollenClip */,
 			);
 			name = RapportskollenClip;
 			packageProductDependencies = (
 			);
 			productName = RapportskollenClip;
-			productReference = 87DCF7922EDEE95C004D43B3 /* RapportskollenClip.app */;
+			productReference = 87DCF7C32EE013A5004D43B3 /* RapportskollenClip.app */;
 			productType = "com.apple.product-type.application.on-demand-install-capable";
 		};
 /* End PBXNativeTarget section */
@@ -241,7 +241,7 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
 					};
-					87DCF7912EDEE95C004D43B3 = {
+					87DCF7C22EE013A5004D43B3 = {
 						CreatedOnToolsVersion = 26.1;
 					};
 				};
@@ -260,7 +260,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* Rapportskollen */,
-				87DCF7912EDEE95C004D43B3 /* RapportskollenClip */,
+				87DCF7C22EE013A5004D43B3 /* RapportskollenClip */,
 			);
 		};
 /* End PBXProject section */
@@ -273,11 +273,11 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				A0ED877561B55B10B491F40F /* PrivacyInfo.xcprivacy in Resources */,
+				BE85B6E7D13F73B2BF17C1E4 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87DCF7902EDEE95C004D43B3 /* Resources */ = {
+		87DCF7C12EE013A5004D43B3 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -326,7 +326,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		5A152B2407B75998BC59AD7A /* [CP] Embed Pods Frameworks */ = {
+		6506D6E8BB81DAE170C6574F /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -343,30 +343,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Rapportskollen/Pods-Rapportskollen-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		792116F9EBF7AFE4FD1E2A1B /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/Rapportskollen/Rapportskollen.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-Rapportskollen/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-Rapportskollen/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Rapportskollen/expo-configure-project.sh\"\n";
 		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -408,6 +384,30 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Rapportskollen/Pods-Rapportskollen-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		A490E952E5AC750534AD0DAA /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/Rapportskollen/Rapportskollen.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-Rapportskollen/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-Rapportskollen/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-Rapportskollen/expo-configure-project.sh\"\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -416,11 +416,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				DDE838946397077759867D22 /* ExpoModulesProvider.swift in Sources */,
+				04E46E4C7E8737521C862037 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		87DCF78E2EDEE95C004D43B3 /* Sources */ = {
+		87DCF7BF2EE013A5004D43B3 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -430,23 +430,22 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		87DCF79D2EDEE960004D43B3 /* PBXTargetDependency */ = {
+		87DCF7CE2EE013A8004D43B3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 87DCF7912EDEE95C004D43B3 /* RapportskollenClip */;
-			targetProxy = 87DCF79C2EDEE960004D43B3 /* PBXContainerItemProxy */;
+			target = 87DCF7C22EE013A5004D43B3 /* RapportskollenClip */;
+			targetProxy = 87DCF7CD2EE013A8004D43B3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7473F6994DA5BEA4514A43CE /* Pods-Rapportskollen.debug.xcconfig */;
+			baseConfigurationReference = F0DDB73F3D18066226FE579A /* Pods-Rapportskollen.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Rapportskollen/Rapportskollen.entitlements;
-				CURRENT_PROJECT_VERSION = 27;
-				DEVELOPMENT_TEAM = KNA72M5CH2;
+				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -458,7 +457,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -477,20 +476,19 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D8623CB02C7E5F2DA74DEF2A /* Pods-Rapportskollen.release.xcconfig */;
+			baseConfigurationReference = 849B41EB1962394DFD95B691 /* Pods-Rapportskollen.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Rapportskollen/Rapportskollen.entitlements;
-				CURRENT_PROJECT_VERSION = 27;
-				DEVELOPMENT_TEAM = KNA72M5CH2;
+				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = Rapportskollen/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -622,7 +620,7 @@
 			};
 			name = Release;
 		};
-		87DCF7A12EDEE961004D43B3 /* Debug */ = {
+		87DCF7D12EE013A8004D43B3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -637,7 +635,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = RapportskollenClip/RapportskollenClip.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = KNA72M5CH2;
 				ENABLE_PREVIEWS = YES;
@@ -657,10 +655,10 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.rapportskollenapp.Ciip;
+				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.rapportskollenapp.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -674,7 +672,7 @@
 			};
 			name = Debug;
 		};
-		87DCF7A22EDEE961004D43B3 /* Release */ = {
+		87DCF7D22EE013A8004D43B3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -690,7 +688,7 @@
 				CODE_SIGN_ENTITLEMENTS = RapportskollenClip/RapportskollenClip.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 27;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KNA72M5CH2;
 				ENABLE_PREVIEWS = YES;
@@ -710,9 +708,9 @@
 					"@executable_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.rapportskollenapp.Ciip;
+				PRODUCT_BUNDLE_IDENTIFIER = com.anonymous.rapportskollenapp.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -746,11 +744,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		87DCF7A02EDEE961004D43B3 /* Build configuration list for PBXNativeTarget "RapportskollenClip" */ = {
+		87DCF7D42EE013A8004D43B3 /* Build configuration list for PBXNativeTarget "RapportskollenClip" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				87DCF7A12EDEE961004D43B3 /* Debug */,
-				87DCF7A22EDEE961004D43B3 /* Release */,
+				87DCF7D12EE013A8004D43B3 /* Debug */,
+				87DCF7D22EE013A8004D43B3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

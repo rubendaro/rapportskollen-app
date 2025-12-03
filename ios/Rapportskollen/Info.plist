@@ -48,6 +48,13 @@
 	<true/>
 	<key>NFCReaderUsageDescription</key>
 	<string>Appen använder NFC för att läsa arbetstaggar.</string>
+	<key>NSAppClip</key>
+	<dict>
+		<key>NSAppClipRequestEphemeralUserNotification</key>
+		<false/>
+		<key>NSAppClipRequestLocationConfirmation</key>
+		<false/>
+	</dict>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

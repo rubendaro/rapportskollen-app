@@ -2,7 +2,7 @@
 //  RapportskollenClipApp.swift
 //  RapportskollenClip
 //
-//  Created by Ruben Villegas on 2025-12-02.
+//  Created by Ruben Villegas on 2025-12-03.
 //
 
 import SwiftUI
